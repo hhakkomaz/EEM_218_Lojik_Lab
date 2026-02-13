@@ -16,505 +16,685 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0fdf4; /* Green-50 */
             color: #064e3b; /* Green-900 */
+            user-select: none;
         }
         
-        /* Breadboard Styles */
-        .breadboard-hole {
-            width: 12px;
-            height: 12px;
-            background-color: #d1d5db;
-            border-radius: 2px;
-            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3);
+        /* -- Bileşen Stilleri -- */
+        
+        /* Breadboard Delikleri */
+        .hole {
+            width: 8px;
+            height: 8px;
+            background-color: #cbd5e1; /* Slate-300 */
+            border-radius: 50%;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.6);
+            position: absolute;
         }
-        .breadboard-hole.active {
-            background-color: #ef4444; /* Red for power */
-        }
-        .breadboard-hole.gnd {
-            background-color: #3b82f6; /* Blue for GND */
-        }
+        .hole.pwr-plus { background-color: #fca5a5; } /* Kırmızı hat */
+        .hole.pwr-minus { background-color: #93c5fd; } /* Mavi hat */
 
-        /* IC Styles */
+        /* Entegre (IC) */
         .ic-body {
-            background-color: #1f2937;
+            width: 140px;
+            height: 40px;
+            background-color: #111827; /* Gray-900 */
             border-radius: 4px;
-            position: relative;
+            position: absolute; /* Sabit konum */
             color: white;
-            font-family: monospace;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-family: monospace;
             font-weight: bold;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            font-size: 14px;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
+            z-index: 20;
         }
         .ic-notch {
             position: absolute;
-            left: -5px;
+            left: -6px;
             top: 50%;
             transform: translateY(-50%);
-            width: 10px;
-            height: 20px;
-            background-color: #f0fdf4;
+            width: 12px;
+            height: 12px;
+            background-color: #6b7280;
             border-radius: 50%;
         }
         .ic-pin {
-            width: 8px;
-            height: 20px;
-            background-color: #9ca3af;
+            width: 6px;
+            height: 10px;
+            background-color: #94a3b8; /* Gray-400 */
             position: absolute;
-            border-radius: 2px;
+            border-radius: 1px;
+            box-shadow: 1px 1px 1px black;
         }
+        /* Pin Konumları */
+        .pin-14 { top: -6px; left: 10px; } .pin-13 { top: -6px; left: 30px; } .pin-12 { top: -6px; left: 50px; }
+        .pin-11 { top: -6px; left: 70px; } .pin-10 { top: -6px; left: 90px; } .pin-9 { top: -6px; left: 110px; }
+        .pin-8  { top: -6px; left: 130px; }
+        .pin-1 { bottom: -6px; left: 10px; } .pin-2 { bottom: -6px; left: 30px; } .pin-3 { bottom: -6px; left: 50px; }
+        .pin-4 { bottom: -6px; left: 70px; } .pin-5 { bottom: -6px; left: 90px; } .pin-6 { bottom: -6px; left: 110px; }
+        .pin-7 { bottom: -6px; left: 130px; }
 
-        /* LED Styles */
-        .led {
+        /* Draggable Source IC */
+        .ic-source {
+            width: 100px;
+            height: 30px;
+            background-color: #1f2937;
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        .ic-source:active { cursor: grabbing; }
+
+        /* Kablolar (Wires) */
+        .wire {
+            position: absolute;
+            height: 6px;
+            border-radius: 3px;
+            opacity: 0.9;
+            z-index: 15;
+            pointer-events: none;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transform-origin: left center;
+        }
+        .wire-v { width: 6px; transform-origin: top center; }
+        .wire-red { background-color: #ef4444; border: 1px solid #991b1b; }
+        .wire-black { background-color: #1f2937; border: 1px solid black; }
+        .wire-yellow { background-color: #eab308; border: 1px solid #854d0e; }
+        .wire-blue { background-color: #3b82f6; border: 1px solid #1e40af; }
+        .wire-green { background-color: #22c55e; border: 1px solid #166534; }
+
+        /* Kontrol Elemanları */
+        .led-bulb {
             width: 20px;
             height: 20px;
             border-radius: 50%;
             background-color: #374151;
-            border: 2px solid #1f2937;
-            transition: all 0.2s;
+            border: 2px solid #111;
+            transition: all 0.1s;
         }
-        .led.on {
+        .led-bulb.on {
             background-color: #ef4444;
-            box-shadow: 0 0 10px #ef4444;
-            border-color: #991b1b;
+            box-shadow: 0 0 12px #ef4444, inset 2px 2px 4px rgba(255,255,255,0.4);
+            border-color: #7f1d1d;
         }
 
-        /* Switch Styles */
-        .toggle-switch {
+        .switch-base {
+            width: 40px;
+            height: 60px;
+            background-color: #ef4444;
+            border-radius: 4px;
             position: relative;
-            width: 50px;
-            height: 26px;
-            background-color: #cbd5e1;
-            border-radius: 13px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
-        .toggle-switch.active {
-            background-color: #22c55e;
-        }
-        .toggle-knob {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 20px;
-            height: 20px;
+        .switch-lever {
+            width: 32px;
+            height: 24px;
             background-color: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute;
+            left: 4px;
+            border-radius: 2px;
+            transition: top 0.2s;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.2);
         }
-        .toggle-switch.active .toggle-knob {
-            transform: translateX(24px);
+        .switch-base.on .switch-lever { top: 4px; } /* Yukarı (1) */
+        .switch-base.off .switch-lever { top: 32px; } /* Aşağı (0) */
+        
+        .switch-label {
+            position: absolute;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
         }
+
     </style>
 </head>
-<body class="antialiased">
-
-    <!-- Navigation Overlay -->
-    <div id="sidebar-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300 opacity-0"></div>
-
-    <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="p-4 border-b border-green-200 flex justify-between items-center bg-green-50">
-            <h2 class="font-bold text-lg text-green-800">Ders İçeriği</h2>
-            <button onclick="toggleMenu()" class="p-2 hover:bg-green-200 rounded-full text-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-        <nav class="flex-1 overflow-y-auto sidebar-scroll p-4 space-y-2">
-            <a href="index.html" class="block p-3 rounded-lg hover:bg-green-50 text-slate-600 transition-colors flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
-                Ana Sayfa
-            </a>
-            <div class="border-t border-green-100 my-2"></div>
-            <a href="deney1.html" class="block p-3 rounded-lg bg-green-100 text-green-800 font-bold border border-green-200">Deney 1: Temel Kapılar</a>
-            <a href="deney2.html" class="block p-3 rounded-lg hover:bg-green-50 text-slate-600 transition-colors">Deney 2: İç Yapılar</a>
-            <a href="deney3.html" class="block p-3 rounded-lg hover:bg-green-50 text-slate-600 transition-colors">Deney 3: Evrensel Kapılar</a>
-            <!-- Diğer deneyler... -->
-        </nav>
-    </aside>
+<body class="h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-green-200 sticky top-0 z-30">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <button onclick="toggleMenu()" class="p-2 -ml-2 hover:bg-green-50 rounded-lg text-green-700 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                </button>
-                <div>
-                    <h1 class="text-xl font-bold text-slate-900 hidden md:block">Deney 1: Temel Kapılar</h1>
-                    <p class="text-sm text-slate-500">7432 (OR), 7408 (AND), 7404 (NOT)</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-               <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">Lab Föyü</span>
+    <header class="bg-white shadow-sm border-b border-green-200 z-50 shrink-0 h-16 flex items-center px-4 justify-between">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="p-2 hover:bg-green-50 rounded-full text-green-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            </a>
+            <div>
+                <h1 class="text-xl font-bold text-slate-900">Deney 1: Temel Kapılar</h1>
+                <p class="text-xs text-slate-500 hidden sm:block">7432 (OR), 7408 (AND), 7404 (NOT)</p>
             </div>
         </div>
+        <button onclick="resetExperiment()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition-colors text-sm font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            Sıfırla
+        </button>
     </header>
 
-    <main class="container mx-auto px-4 py-8 space-y-12 max-w-5xl">
-
-        <!-- Intro -->
-        <section class="bg-white p-6 rounded-xl shadow-sm border border-green-100">
-            <h2 class="text-2xl font-bold text-slate-800 mb-4">Deneyin Amacı</h2>
-            <p class="text-slate-600">
-                Bu deneyde temel lojik kapıların (VEYA, VE, DEĞİL) çalışma prensiplerini inceleyecek, 
-                entegrelerin (74xx serisi) pin yapılarını öğrenecek ve doğruluk tablolarını deneysel olarak doğrulayacağız.
-            </p>
-        </section>
-
-        <!-- Theoretical Info Section (NEW) -->
-        <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                Teorik Bilgiler
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- OR Gate Theory -->
-                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-bold text-slate-800">OR (VEYA) Kapısı</h3>
-                        <span class="text-xs font-bold bg-slate-200 px-2 py-1 rounded">7432</span>
-                    </div>
-                    <div class="flex justify-center mb-4 p-2 bg-white rounded border border-slate-100">
-                        <!-- Simple SVG for OR -->
-                        <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="black" stroke-width="2">
-                            <path d="M5,5 Q20,20 5,35 M5,5 L20,5 Q35,5 45,20 Q35,35 20,35 L5,35" />
-                            <line x1="0" y1="10" x2="5" y2="10" />
-                            <line x1="0" y1="30" x2="5" y2="30" />
-                            <line x1="45" y1="20" x2="60" y2="20" />
-                        </svg>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-2"><strong>Mantık:</strong> Girişlerden en az biri "1" (Yüksek) ise çıkış "1" olur.</p>
-                    <p class="text-sm font-mono bg-slate-100 p-1 rounded mb-2 text-center">F = A + B</p>
-                    <table class="w-full text-xs text-center border-collapse">
-                        <tr class="bg-slate-200"><th class="border p-1">A</th><th class="border p-1">B</th><th class="border p-1">F</th></tr>
-                        <tr><td class="border">0</td><td class="border">0</td><td class="border font-bold">0</td></tr>
-                        <tr><td class="border">0</td><td class="border">1</td><td class="border font-bold">1</td></tr>
-                        <tr><td class="border">1</td><td class="border">0</td><td class="border font-bold">1</td></tr>
-                        <tr><td class="border">1</td><td class="border">1</td><td class="border font-bold">1</td></tr>
-                    </table>
-                </div>
-
-                <!-- AND Gate Theory -->
-                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-bold text-slate-800">AND (VE) Kapısı</h3>
-                        <span class="text-xs font-bold bg-slate-200 px-2 py-1 rounded">7408</span>
-                    </div>
-                    <div class="flex justify-center mb-4 p-2 bg-white rounded border border-slate-100">
-                        <!-- Simple SVG for AND -->
-                        <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="black" stroke-width="2">
-                            <path d="M5,5 L20,5 Q40,5 40,20 Q40,35 20,35 L5,35 Z" />
-                            <line x1="0" y1="10" x2="5" y2="10" />
-                            <line x1="0" y1="30" x2="5" y2="30" />
-                            <line x1="40" y1="20" x2="60" y2="20" />
-                        </svg>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-2"><strong>Mantık:</strong> Girişlerin hepsi "1" (Yüksek) ise çıkış "1" olur.</p>
-                    <p class="text-sm font-mono bg-slate-100 p-1 rounded mb-2 text-center">F = A · B</p>
-                    <table class="w-full text-xs text-center border-collapse">
-                        <tr class="bg-slate-200"><th class="border p-1">A</th><th class="border p-1">B</th><th class="border p-1">F</th></tr>
-                        <tr><td class="border">0</td><td class="border">0</td><td class="border font-bold">0</td></tr>
-                        <tr><td class="border">0</td><td class="border">1</td><td class="border font-bold">0</td></tr>
-                        <tr><td class="border">1</td><td class="border">0</td><td class="border font-bold">0</td></tr>
-                        <tr><td class="border">1</td><td class="border">1</td><td class="border font-bold">1</td></tr>
-                    </table>
-                </div>
-
-                <!-- NOT Gate Theory -->
-                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-bold text-slate-800">NOT (DEĞİL) Kapısı</h3>
-                        <span class="text-xs font-bold bg-slate-200 px-2 py-1 rounded">7404</span>
-                    </div>
-                    <div class="flex justify-center mb-4 p-2 bg-white rounded border border-slate-100">
-                        <!-- Simple SVG for NOT -->
-                        <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="black" stroke-width="2">
-                            <path d="M5,5 L5,35 L35,20 Z" />
-                            <circle cx="38" cy="20" r="3" />
-                            <line x1="0" y1="20" x2="5" y2="20" />
-                            <line x1="41" y1="20" x2="60" y2="20" />
-                        </svg>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-2"><strong>Mantık:</strong> Giriş "1" ise çıkış "0", giriş "0" ise çıkış "1" olur (Tersleyici).</p>
-                    <p class="text-sm font-mono bg-slate-100 p-1 rounded mb-2 text-center">F = A'</p>
-                    <table class="w-full text-xs text-center border-collapse">
-                        <tr class="bg-slate-200"><th class="border p-1">A</th><th class="border p-1">F</th></tr>
-                        <tr><td class="border">0</td><td class="border font-bold">1</td></tr>
-                        <tr><td class="border">1</td><td class="border font-bold">0</td></tr>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Interactive Lab Board -->
-        <section class="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden relative">
-            <div class="bg-slate-800 p-4 flex justify-between items-center text-white">
-                <h3 class="font-bold flex items-center gap-2">
-                    <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-                    Sanal Laboratuvar Tezgahı
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar: Component Bin -->
+        <aside class="w-64 bg-slate-50 border-r border-slate-200 p-4 flex flex-col gap-6 shrink-0 overflow-y-auto z-40">
+            <div>
+                <h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    Malzeme Kutusu
                 </h3>
-                <select id="chip-selector" onchange="loadChip()" class="bg-slate-700 text-white text-sm p-2 rounded border border-slate-600 focus:outline-none focus:border-green-500">
-                    <option value="7432">7432 (OR Gate)</option>
-                    <option value="7408">7408 (AND Gate)</option>
-                    <option value="7404">7404 (NOT Gate)</option>
-                </select>
-            </div>
-
-            <div class="p-8 bg-slate-50 relative min-h-[500px]">
+                <p class="text-xs text-slate-500 mb-4">Aşağıdaki entegreleri sürükleyip sağdaki Board üzerine bırakın.</p>
                 
-                <!-- Inputs Section -->
-                <div class="absolute left-8 top-20 space-y-8">
-                    <div class="text-center">
-                        <div class="text-xs font-bold text-slate-500 mb-1">Giriş A</div>
-                        <div class="toggle-switch" id="sw-a" onclick="toggleSwitch('a')">
-                            <div class="toggle-knob"></div>
+                <div class="space-y-4">
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow text-center">
+                        <div class="font-bold text-sm text-slate-800 mb-2">7432 (OR Gate)</div>
+                        <div class="ic-source" draggable="true" ondragstart="drag(event)" data-type="7432">
+                            <span class="text-xs">74LS32</span>
                         </div>
-                        <div class="mt-1 font-mono font-bold text-slate-700" id="val-a">0</div>
+                        <div class="text-[10px] text-slate-400 mt-2">4 x VEYA Kapısı</div>
                     </div>
-                    <div class="text-center" id="input-b-container">
-                        <div class="text-xs font-bold text-slate-500 mb-1">Giriş B</div>
-                        <div class="toggle-switch" id="sw-b" onclick="toggleSwitch('b')">
-                            <div class="toggle-knob"></div>
+
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow text-center">
+                        <div class="font-bold text-sm text-slate-800 mb-2">7408 (AND Gate)</div>
+                        <div class="ic-source" draggable="true" ondragstart="drag(event)" data-type="7408">
+                            <span class="text-xs">74LS08</span>
                         </div>
-                        <div class="mt-1 font-mono font-bold text-slate-700" id="val-b">0</div>
+                        <div class="text-[10px] text-slate-400 mt-2">4 x VE Kapısı</div>
                     </div>
-                </div>
 
-                <!-- Breadboard Area (Stylized) -->
-                <div class="absolute left-32 right-32 top-10 bottom-10 bg-white border-2 border-slate-200 rounded-lg p-4 flex items-center justify-center">
-                    
-                    <!-- The Chip -->
-                    <div class="relative w-64 h-24 bg-slate-900 rounded-lg shadow-xl flex items-center justify-center text-white font-mono text-xl tracking-widest border border-slate-700">
-                        <div class="ic-notch"></div>
-                        <span id="chip-label">7432</span>
-                        <div class="absolute top-2 right-4 text-[10px] text-slate-400">VCC</div>
-                        <div class="absolute bottom-2 left-4 text-[10px] text-slate-400">GND</div>
-
-                        <!-- Pins Top (14-8) -->
-                        <div class="absolute -top-3 left-4 w-2 h-4 bg-slate-400 rounded-sm"></div> <!-- VCC -->
-                        <div class="absolute -top-3 left-14 w-2 h-4 bg-slate-400 rounded-sm"></div>
-                        <div class="absolute -top-3 left-24 w-2 h-4 bg-slate-400 rounded-sm"></div>
-                        <div class="absolute -top-3 left-34 w-2 h-4 bg-slate-400 rounded-sm"></div> <!-- This layout is simplified for viz -->
-                        
-                        <!-- Pins Bottom (1-7) -->
-                        <div class="absolute -bottom-3 left-4 w-2 h-4 bg-slate-400 rounded-sm"></div> <!-- 1 -->
-                        <div class="absolute -bottom-3 left-14 w-2 h-4 bg-slate-400 rounded-sm"></div> <!-- 2 -->
-                        <div class="absolute -bottom-3 left-24 w-2 h-4 bg-slate-400 rounded-sm"></div> <!-- 3 (Out) -->
-                        
-                        <!-- Active Gate Visualization (Overlay) -->
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                            <svg id="gate-symbol" width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="white" stroke-width="2">
-                                <!-- OR Symbol Default -->
-                                <path d="M5,5 Q20,20 5,35 M5,5 L20,5 Q35,5 45,20 Q35,35 20,35 L5,35" />
-                            </svg>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow text-center">
+                        <div class="font-bold text-sm text-slate-800 mb-2">7404 (NOT Gate)</div>
+                        <div class="ic-source" draggable="true" ondragstart="drag(event)" data-type="7404">
+                            <span class="text-xs">74LS04</span>
                         </div>
+                        <div class="text-[10px] text-slate-400 mt-2">6 x DEĞİL Kapısı</div>
                     </div>
-
-                    <!-- Wires (Simplified Visualization) -->
-                    <svg class="absolute inset-0 pointer-events-none w-full h-full">
-                        <!-- Input A Wire -->
-                        <path id="wire-a" d="M -50 150 C 0 150, 50 180, 150 180" fill="none" stroke="#94a3b8" stroke-width="4" />
-                        <!-- Input B Wire -->
-                        <path id="wire-b" d="M -50 250 C 0 250, 50 200, 170 200" fill="none" stroke="#94a3b8" stroke-width="4" />
-                        <!-- Output Wire -->
-                        <path id="wire-out" d="M 250 200 C 350 200, 400 200, 480 200" fill="none" stroke="#94a3b8" stroke-width="4" />
-                    </svg>
-
-                </div>
-
-                <!-- Output Section -->
-                <div class="absolute right-8 top-32 text-center">
-                    <div class="text-xs font-bold text-slate-500 mb-2">Çıkış (F)</div>
-                    <div class="led" id="led-f"></div>
-                    <div class="mt-2 font-mono font-bold text-slate-700" id="val-f">0</div>
-                </div>
-
-                <!-- Truth Table (Live Update) -->
-                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded-lg shadow border border-slate-200 w-full max-w-lg">
-                    <h4 class="text-sm font-bold text-slate-700 mb-2 border-b pb-1">Doğruluk Tablosu (Live)</h4>
-                    <div class="grid grid-cols-4 gap-2 text-center text-sm" id="truth-table">
-                        <div class="font-bold bg-slate-100 p-1">A</div>
-                        <div class="font-bold bg-slate-100 p-1">B</div>
-                        <div class="font-bold bg-slate-100 p-1">F</div>
-                        <div class="font-bold bg-slate-100 p-1">Durum</div>
-                        
-                        <!-- Rows will be generated by JS -->
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- Technical Details -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <span class="bg-blue-100 text-blue-600 px-2 rounded text-xs">INFO</span>
-                    Entegre Pin Yapısı (Pinout)
-                </h3>
-                <div class="text-sm text-slate-600 space-y-2">
-                    <p><strong>VCC (Pin 14):</strong> +5V Güç girişi. (Kırmızı kablo)</p>
-                    <p><strong>GND (Pin 7):</strong> Toprak bağlantısı. (Siyah/Mavi kablo)</p>
-                    <p><strong>Kapılar:</strong> Her entegre içinde birden fazla kapı vardır. Örneğin 7432 içinde 4 adet OR kapısı bulunur.</p>
-                    <p><strong>1. Kapı:</strong> Girişler 1 ve 2, Çıkış 3.</p>
                 </div>
             </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <span class="bg-orange-100 text-orange-600 px-2 rounded text-xs">UYARI</span>
-                    Laboratuvar Güvenliği
-                </h3>
-                <ul class="text-sm text-slate-600 list-disc list-inside space-y-1">
-                    <li>Entegreleri takmadan önce enerjiyi kesin.</li>
-                    <li>VCC ve GND bağlantılarını ters yapmayın (Entegre ısınır ve yanar).</li>
-                    <li>Kullanılmayan kapıların girişlerini boş bırakmayın (Gürültü kapabilir).</li>
+
+            <div class="mt-auto bg-blue-50 p-3 rounded border border-blue-100 text-xs text-blue-900">
+                <strong>Nasıl Kullanılır?</strong>
+                <ul class="list-disc ml-4 mt-1 space-y-1">
+                    <li>Önce yukarıdaki teorik bilgileri inceleyin.</li>
+                    <li>Entegreyi sürükleyip tahtaya bırakın.</li>
+                    <li>VCC, GND ve Sinyal kabloları otomatik bağlanır.</li>
+                    <li>Kırmızı anahtarları (A/B) açıp kapatın.</li>
+                    <li>LED çıkışını gözlemleyin.</li>
                 </ul>
             </div>
-        </section>
+        </aside>
 
-    </main>
+        <!-- Main Workspace (Scrollable) -->
+        <main class="flex-1 bg-slate-200 relative flex flex-col items-center p-4 overflow-y-auto">
+            
+            <div class="w-full max-w-4xl space-y-8 pb-10">
+
+                <!-- 1. Intro & Theory Section -->
+                <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                        Teorik Bilgiler
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- OR Gate Theory -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-slate-800">OR (VEYA) Kapısı</h3>
+                                <span class="text-xs font-bold bg-slate-200 px-2 py-1 rounded">7432</span>
+                            </div>
+                            <div class="flex justify-center mb-4 p-2 bg-white rounded border border-slate-100">
+                                <!-- Simple SVG for OR -->
+                                <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="black" stroke-width="2">
+                                    <path d="M5,5 Q20,20 5,35 M5,5 L20,5 Q35,5 45,20 Q35,35 20,35 L5,35" />
+                                    <line x1="0" y1="10" x2="5" y2="10" />
+                                    <line x1="0" y1="30" x2="5" y2="30" />
+                                    <line x1="45" y1="20" x2="60" y2="20" />
+                                </svg>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-2"><strong>Mantık:</strong> Girişlerden en az biri "1" ise çıkış "1" olur.</p>
+                            <p class="text-sm font-mono bg-slate-100 p-1 rounded mb-2 text-center text-blue-600">F = A + B</p>
+                            <table class="w-full text-xs text-center border-collapse bg-white">
+                                <tr class="bg-slate-200"><th class="border p-1">A</th><th class="border p-1">B</th><th class="border p-1">F</th></tr>
+                                <tr><td class="border">0</td><td class="border">0</td><td class="border font-bold text-red-600">0</td></tr>
+                                <tr><td class="border">0</td><td class="border">1</td><td class="border font-bold text-green-600">1</td></tr>
+                                <tr><td class="border">1</td><td class="border">0</td><td class="border font-bold text-green-600">1</td></tr>
+                                <tr><td class="border">1</td><td class="border">1</td><td class="border font-bold text-green-600">1</td></tr>
+                            </table>
+                        </div>
+
+                        <!-- AND Gate Theory -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-slate-800">AND (VE) Kapısı</h3>
+                                <span class="text-xs font-bold bg-slate-200 px-2 py-1 rounded">7408</span>
+                            </div>
+                            <div class="flex justify-center mb-4 p-2 bg-white rounded border border-slate-100">
+                                <!-- Simple SVG for AND -->
+                                <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="black" stroke-width="2">
+                                    <path d="M5,5 L20,5 Q40,5 40,20 Q40,35 20,35 L5,35 Z" />
+                                    <line x1="0" y1="10" x2="5" y2="10" />
+                                    <line x1="0" y1="30" x2="5" y2="30" />
+                                    <line x1="40" y1="20" x2="60" y2="20" />
+                                </svg>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-2"><strong>Mantık:</strong> Sadece her iki giriş de "1" ise çıkış "1" olur.</p>
+                            <p class="text-sm font-mono bg-slate-100 p-1 rounded mb-2 text-center text-blue-600">F = A · B</p>
+                            <table class="w-full text-xs text-center border-collapse bg-white">
+                                <tr class="bg-slate-200"><th class="border p-1">A</th><th class="border p-1">B</th><th class="border p-1">F</th></tr>
+                                <tr><td class="border">0</td><td class="border">0</td><td class="border font-bold text-red-600">0</td></tr>
+                                <tr><td class="border">0</td><td class="border">1</td><td class="border font-bold text-red-600">0</td></tr>
+                                <tr><td class="border">1</td><td class="border">0</td><td class="border font-bold text-red-600">0</td></tr>
+                                <tr><td class="border">1</td><td class="border">1</td><td class="border font-bold text-green-600">1</td></tr>
+                            </table>
+                        </div>
+
+                        <!-- NOT Gate Theory -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-slate-800">NOT (DEĞİL) Kapısı</h3>
+                                <span class="text-xs font-bold bg-slate-200 px-2 py-1 rounded">7404</span>
+                            </div>
+                            <div class="flex justify-center mb-4 p-2 bg-white rounded border border-slate-100">
+                                <!-- Simple SVG for NOT -->
+                                <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="black" stroke-width="2">
+                                    <path d="M5,5 L5,35 L35,20 Z" />
+                                    <circle cx="38" cy="20" r="3" />
+                                    <line x1="0" y1="20" x2="5" y2="20" />
+                                    <line x1="41" y1="20" x2="60" y2="20" />
+                                </svg>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-2"><strong>Mantık:</strong> Girişi tersler. 1 ise 0, 0 ise 1 yapar.</p>
+                            <p class="text-sm font-mono bg-slate-100 p-1 rounded mb-2 text-center text-blue-600">F = A'</p>
+                            <table class="w-full text-xs text-center border-collapse bg-white">
+                                <tr class="bg-slate-200"><th class="border p-1">A</th><th class="border p-1">F</th></tr>
+                                <tr><td class="border">0</td><td class="border font-bold text-green-600">1</td></tr>
+                                <tr><td class="border">1</td><td class="border font-bold text-red-600">0</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Breadboard Simulation Area -->
+                <!-- Use flex-col items-center to center the board -->
+                <div class="flex flex-col items-center">
+                    <h3 class="text-lg font-bold text-slate-700 mb-4 w-full text-left border-l-4 border-slate-600 pl-3">Sanal Laboratuvar Simülasyonu</h3>
+                    
+                    <div id="board-container" class="relative w-[700px] h-[450px] bg-white rounded-lg shadow-2xl border-b-[8px] border-r-[8px] border-slate-400 shrink-0 transform transition-transform duration-300"
+                        ondragover="allowDrop(event)" 
+                        ondrop="drop(event)">
+                        
+                        <div class="absolute top-2 left-4 text-xs font-bold text-slate-400 tracking-widest pointer-events-none">SANAL BREADBOARD</div>
+
+                        <!-- 1. Power Rails Top -->
+                        <div id="rail-top" class="absolute top-[30px] left-[40px] right-[40px] h-[30px] flex flex-col justify-between pointer-events-none">
+                            <div class="flex justify-between px-1"></div> <!-- Positive (+5V) -->
+                            <div class="flex justify-between px-1"></div> <!-- Negative (GND) -->
+                        </div>
+                        <div class="absolute top-[28px] left-[40px] right-[40px] h-[1px] bg-red-400 opacity-50 pointer-events-none"></div>
+                        <div class="absolute top-[58px] left-[40px] right-[40px] h-[1px] bg-blue-400 opacity-50 pointer-events-none"></div>
+
+                        <!-- 2. Main Board Area -->
+                        <div id="holes-top" class="absolute top-[80px] left-[40px] w-[620px] h-[50px] pointer-events-none"></div>
+                        <div class="absolute top-[135px] left-[30px] right-[30px] h-[10px] bg-slate-100 rounded-sm border-y border-slate-200 pointer-events-none"></div>
+                        <div id="holes-bottom" class="absolute top-[150px] left-[40px] w-[620px] h-[50px] pointer-events-none"></div>
+
+                        <!-- 3. Power Rails Bottom -->
+                        <div id="rail-bottom" class="absolute top-[230px] left-[40px] right-[40px] h-[30px] flex flex-col justify-between pointer-events-none"></div>
+                        <div class="absolute top-[228px] left-[40px] right-[40px] h-[1px] bg-red-400 opacity-50 pointer-events-none"></div>
+                        <div class="absolute top-[258px] left-[40px] right-[40px] h-[1px] bg-blue-400 opacity-50 pointer-events-none"></div>
+
+                        <!-- 4. Components Layer -->
+                        <div id="placed-ic" class="ic-body hidden" style="left: 280px; top: 120px;">
+                            <div class="ic-notch"></div>
+                            <span id="ic-text">74LSxx</span>
+                            <!-- Pins -->
+                            <div class="ic-pin pin-14"></div><div class="ic-pin pin-13"></div><div class="ic-pin pin-12"></div>
+                            <div class="ic-pin pin-11"></div><div class="ic-pin pin-10"></div><div class="ic-pin pin-9"></div><div class="ic-pin pin-8"></div>
+                            <div class="ic-pin pin-1"></div><div class="ic-pin pin-2"></div><div class="ic-pin pin-3"></div>
+                            <div class="ic-pin pin-4"></div><div class="ic-pin pin-5"></div><div class="ic-pin pin-6"></div><div class="ic-pin pin-7"></div>
+                        </div>
+
+                        <!-- Wires Layer -->
+                        <div id="wires-layer" class="absolute inset-0 pointer-events-none z-10"></div>
+
+                        <!-- Controls Area -->
+                        <div class="absolute bottom-[20px] left-[40px] flex gap-12 items-center bg-slate-200 p-4 rounded-lg border border-slate-300 shadow-inner">
+                            <div class="text-center">
+                                <div class="text-[10px] font-bold text-slate-600 mb-1">GİRİŞ A</div>
+                                <div id="sw-a" class="switch-base off" onclick="toggleSwitch('a')">
+                                    <div class="switch-label" style="top: 4px">1</div>
+                                    <div class="switch-lever"></div>
+                                    <div class="switch-label" style="bottom: 4px">0</div>
+                                </div>
+                            </div>
+                            <div class="text-center" id="sw-b-container">
+                                <div class="text-[10px] font-bold text-slate-600 mb-1">GİRİŞ B</div>
+                                <div id="sw-b" class="switch-base off" onclick="toggleSwitch('b')">
+                                    <div class="switch-label" style="top: 4px">1</div>
+                                    <div class="switch-lever"></div>
+                                    <div class="switch-label" style="bottom: 4px">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Output Area -->
+                        <div class="absolute bottom-[40px] right-[60px] flex flex-col items-center">
+                            <div class="text-[10px] font-bold text-slate-600 mb-2">ÇIKIŞ F</div>
+                            <div id="led-f" class="led-bulb"></div>
+                        </div>
+                        
+                        <!-- Drop Hint -->
+                        <div id="drop-hint" class="absolute top-[130px] left-0 right-0 text-center pointer-events-none opacity-50">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded border border-yellow-300 font-bold animate-pulse">
+                                ENTEGREYİ BURAYA SÜRÜKLEYİN
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Fixed Truth Table Floating Panel -->
+            <div class="fixed bottom-4 right-4 bg-white/90 backdrop-blur p-4 rounded-lg shadow-lg border border-slate-200 w-64 z-50 transition-opacity" id="truth-panel">
+                <div class="flex justify-between items-center mb-2 border-b pb-1">
+                    <h4 class="font-bold text-sm text-slate-700">Canlı Doğruluk Tablosu</h4>
+                    <span class="text-[10px] text-green-600 font-bold animate-pulse">●</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1 text-center text-xs" id="truth-table">
+                    <div class="col-span-4 text-slate-400 py-2">Veri yok. Devre kurunuz.</div>
+                </div>
+            </div>
+
+        </main>
+    </div>
 
     <script>
-        // State
-        let inputA = 0;
-        let inputB = 0;
-        let currentChip = '7432';
-
-        const chips = {
-            '7432': { name: 'OR Kapısı', func: (a, b) => a | b, symbol: 'M5,5 Q20,20 5,35 M5,5 L20,5 Q35,5 45,20 Q35,35 20,35 L5,35' },
-            '7408': { name: 'AND Kapısı', func: (a, b) => a & b, symbol: 'M5,5 L20,5 Q40,5 40,20 Q40,35 20,35 L5,35 Z' },
-            '7404': { name: 'NOT Kapısı', func: (a, b) => !a & 1, symbol: 'M5,5 L5,35 L35,20 Z M35,20 circle r=3' } // Single input
+        // --- Setup & Config ---
+        const boardConfig = {
+            colCount: 30,
+            colPitch: 20, // 20px between holes horizontally
+            startX: 45,   // First hole X position relative to board
+            icLeft: 280,  // Fixed IC Position X
+            icPinYTop: 114, // Where top wire connects
+            icPinYBot: 160  // Where bottom wire connects
         };
 
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                setTimeout(() => { overlay.classList.remove('opacity-0'); }, 10);
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+        const icLogic = {
+            '7432': { func: (a, b) => a | b, name: 'OR' },
+            '7408': { func: (a, b) => a & b, name: 'AND' },
+            '7404': { func: (a, b) => !a & 1, name: 'NOT' }
+        };
+
+        let state = {
+            inputA: 0,
+            inputB: 0,
+            activeIC: null
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHoles();
+        });
+
+        function renderHoles() {
+            const createHole = (cls) => `<div class="hole ${cls}"></div>`;
+            const rows = 30;
+
+            // Power Rails (Top)
+            let pTopHtml = ''; let nTopHtml = '';
+            for(let i=0; i<rows; i++) {
+                const left = boardConfig.startX + (i * boardConfig.colPitch);
+                pTopHtml += `<div class="hole pwr-plus" style="left: ${left}px; top: 0px;"></div>`;
+                nTopHtml += `<div class="hole pwr-minus" style="left: ${left}px; top: 20px;"></div>`;
             }
-        }
-
-        function toggleSwitch(input) {
-            const sw = document.getElementById(`sw-${input}`);
-            const valDisplay = document.getElementById(`val-${input}`);
-            const wire = document.getElementById(`wire-${input}`);
+            document.getElementById('rail-top').innerHTML = `
+                <div style="position:relative; height:100%; width:100%;">${pTopHtml}${nTopHtml}</div>
+            `;
             
-            if (input === 'a') {
-                inputA = inputA ? 0 : 1;
-                valDisplay.innerText = inputA;
-                sw.classList.toggle('active', inputA);
-                if(wire) wire.setAttribute('stroke', inputA ? '#ef4444' : '#3b82f6'); // Red for 1, Blue for 0
-            } else {
-                inputB = inputB ? 0 : 1;
-                valDisplay.innerText = inputB;
-                sw.classList.toggle('active', inputB);
-                if(wire) wire.setAttribute('stroke', inputB ? '#ef4444' : '#3b82f6');
+            // Note: Reuse logic for bottom rail but we need to inject HTML differently
+            // Just simplified for this view
+            let pBotHtml = ''; let nBotHtml = '';
+            for(let i=0; i<rows; i++) {
+                const left = boardConfig.startX + (i * boardConfig.colPitch);
+                pBotHtml += `<div class="hole pwr-plus" style="left: ${left}px; top: 0px;"></div>`;
+                nBotHtml += `<div class="hole pwr-minus" style="left: ${left}px; top: 20px;"></div>`;
             }
-            updateCircuit();
-        }
-
-        function loadChip() {
-            currentChip = document.getElementById('chip-selector').value;
-            document.getElementById('chip-label').innerText = currentChip;
-            
-            // Special handling for NOT gate (Single Input)
-            if (currentChip === '7404') {
-                document.getElementById('input-b-container').style.opacity = '0.3';
-                document.getElementById('input-b-container').style.pointerEvents = 'none';
-                document.getElementById('wire-b').style.display = 'none';
-            } else {
-                document.getElementById('input-b-container').style.opacity = '1';
-                document.getElementById('input-b-container').style.pointerEvents = 'auto';
-                document.getElementById('wire-b').style.display = 'block';
-            }
-
-            // Update SVG Symbol Overlay
-            // Note: In a real app, we'd draw proper SVG paths. Here we simulate.
-            
-            generateTruthTable();
-            updateCircuit();
-        }
-
-        function updateCircuit() {
-            const logic = chips[currentChip].func;
-            const output = logic(inputA, inputB);
-            
-            const led = document.getElementById('led-f');
-            const valDisplay = document.getElementById('val-f');
-            const wireOut = document.getElementById('wire-out');
-
-            if (output) {
-                led.classList.add('on');
-                valDisplay.innerText = '1';
-                wireOut.setAttribute('stroke', '#ef4444');
-            } else {
-                led.classList.remove('on');
-                valDisplay.innerText = '0';
-                wireOut.setAttribute('stroke', '#3b82f6');
-            }
-
-            // Highlight current row in truth table
-            updateTruthTableHighlight();
-        }
-
-        function generateTruthTable() {
-            const table = document.getElementById('truth-table');
-            // Keep headers
-            table.innerHTML = `
-                <div class="font-bold bg-slate-100 p-1">A</div>
-                <div class="font-bold bg-slate-100 p-1">B</div>
-                <div class="font-bold bg-slate-100 p-1">F</div>
-                <div class="font-bold bg-slate-100 p-1">Durum</div>
+            document.getElementById('rail-bottom').innerHTML = `
+                 <div style="position:relative; height:100%; width:100%;">${pBotHtml}${nBotHtml}</div>
             `;
 
-            const logic = chips[currentChip].func;
-            
-            const inputs = currentChip === '7404' ? [[0,0], [1,0]] : [[0,0], [0,1], [1,0], [1,1]];
-
-            inputs.forEach(inp => {
-                const res = logic(inp[0], inp[1]);
-                const rowId = `row-${inp[0]}-${inp[1]}`;
-                const bVal = currentChip === '7404' ? '-' : inp[1];
-                
-                table.innerHTML += `
-                    <div class="p-1 border-t" id="${rowId}-a">${inp[0]}</div>
-                    <div class="p-1 border-t" id="${rowId}-b">${bVal}</div>
-                    <div class="p-1 border-t font-bold text-green-700">${res}</div>
-                    <div class="p-1 border-t text-xs flex items-center justify-center">
-                        <div id="${rowId}-status" class="w-3 h-3 rounded-full bg-slate-200"></div>
-                    </div>
-                `;
+            // Main Area
+            let mainTop = '';
+            [0, 12, 24, 36, 48].forEach(y => {
+                 for(let i=0; i<rows; i++) {
+                     const left = boardConfig.startX + (i * boardConfig.colPitch);
+                     mainTop += `<div class="hole" style="left: ${left}px; top: ${y}px;"></div>`;
+                 }
             });
+            document.getElementById('holes-top').innerHTML = mainTop;
+
+            let mainBot = '';
+            [0, 12, 24, 36, 48].forEach(y => {
+                for(let i=0; i<rows; i++) {
+                     const left = boardConfig.startX + (i * boardConfig.colPitch);
+                     mainBot += `<div class="hole" style="left: ${left}px; top: ${y}px;"></div>`;
+                 }
+            });
+            document.getElementById('holes-bottom').innerHTML = mainBot;
         }
 
-        function updateTruthTableHighlight() {
-            // Reset all indicators
-            document.querySelectorAll('[id$="-status"]').forEach(el => el.classList.remove('bg-green-500', 'animate-pulse'));
-            document.querySelectorAll('[id$="-status"]').forEach(el => el.classList.add('bg-slate-200'));
+        // --- Drag & Drop ---
+        function allowDrop(ev) {
+            ev.preventDefault();
+            document.getElementById('board-container').classList.add('ring-4', 'ring-green-300');
+        }
 
-            // Find current row
-            // For NOT gate we ignore B
-            let targetId = `row-${inputA}-${currentChip === '7404' ? 0 : inputB}-status`;
-            const indicator = document.getElementById(targetId);
-            if (indicator) {
-                indicator.classList.remove('bg-slate-200');
-                indicator.classList.add('bg-green-500', 'animate-pulse');
+        function drag(ev) {
+            ev.dataTransfer.setData("ic-type", ev.target.dataset.type);
+            document.getElementById('board-container').classList.add('border-green-400');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            document.getElementById('board-container').classList.remove('ring-4', 'ring-green-300', 'border-green-400');
+            const type = ev.dataTransfer.getData("ic-type");
+            if(type) placeIC(type);
+        }
+
+        // --- Logic Control ---
+        function placeIC(type) {
+            state.activeIC = type;
+            
+            // Show IC
+            const icEl = document.getElementById('placed-ic');
+            const icText = document.getElementById('ic-text');
+            icEl.classList.remove('hidden');
+            icText.innerText = `74LS${type.slice(2)}`;
+            document.getElementById('drop-hint').classList.add('hidden');
+
+            // Handle NOT gate (Single input)
+            const swB = document.getElementById('sw-b-container');
+            if(type === '7404') {
+                swB.style.opacity = '0.3';
+                swB.style.pointerEvents = 'none';
+            } else {
+                swB.style.opacity = '1';
+                swB.style.pointerEvents = 'auto';
+            }
+
+            // Draw Wires
+            drawWires(type);
+            updateSystem();
+            renderTruthTable();
+        }
+
+        function resetExperiment() {
+            state.activeIC = null;
+            state.inputA = 0;
+            state.inputB = 0;
+            
+            document.getElementById('placed-ic').classList.add('hidden');
+            document.getElementById('drop-hint').classList.remove('hidden');
+            document.getElementById('wires-layer').innerHTML = '';
+            document.getElementById('truth-table').innerHTML = '<div class="col-span-4 text-slate-400 py-2">Veri yok. Devre kurunuz.</div>';
+            
+            // Reset Switches UI
+            document.getElementById('sw-a').className = "switch-base off";
+            document.getElementById('sw-b').className = "switch-base off";
+            document.getElementById('sw-b-container').style.opacity = '1';
+            document.getElementById('sw-b-container').style.pointerEvents = 'auto';
+            
+            updateSystem();
+        }
+
+        function toggleSwitch(id) {
+            const sw = document.getElementById('sw-'+id);
+            if(id === 'a') {
+                state.inputA = state.inputA ? 0 : 1;
+                sw.className = state.inputA ? "switch-base on" : "switch-base off";
+            } else {
+                state.inputB = state.inputB ? 0 : 1;
+                sw.className = state.inputB ? "switch-base on" : "switch-base off";
+            }
+            updateSystem();
+        }
+
+        function updateSystem() {
+            const led = document.getElementById('led-f');
+            if(!state.activeIC) {
+                led.className = "led-bulb";
+                return;
+            }
+
+            const logic = icLogic[state.activeIC].func;
+            const res = logic(state.inputA, state.inputB);
+
+            if(res) led.className = "led-bulb on";
+            else led.className = "led-bulb";
+
+            // Wire Colors Update
+            updateWireColor('wire-a', state.inputA);
+            updateWireColor('wire-b', state.inputB);
+            updateWireColor('wire-out', res);
+            
+            highlightTruthTable();
+        }
+
+        function updateWireColor(id, active) {
+            const el = document.getElementById(id);
+            if(el) el.style.backgroundColor = active ? '#ef4444' : '#3b82f6'; // Red/Blue
+        }
+
+        // --- Visuals: Wires ---
+        function drawWires(type) {
+            const layer = document.getElementById('wires-layer');
+            layer.innerHTML = '';
+            
+            // Fixed Coordinates for this specific board size and IC position
+            // Pin 14 (VCC) - Top Left of IC
+            layer.appendChild(createWire(290, 114, 290, 35, 'wire-red')); 
+
+            // Pin 7 (GND) - Bottom Right of IC
+            layer.appendChild(createWire(410, 166, 410, 255, 'wire-black')); 
+
+            // Inputs
+            // Pin 1 -> Switch A
+            layer.appendChild(createWire(290, 166, 290, 320, 'wire-yellow', 'wire-a')); 
+            
+            if(type !== '7404') {
+                // Pin 2 -> Switch B
+                layer.appendChild(createWire(310, 166, 310, 320, 'wire-yellow', 'wire-b')); 
+                // Pin 3 -> Output LED
+                layer.appendChild(createWire(330, 166, 330, 300, 'wire-blue', 'wire-out')); 
+                layer.appendChild(createWireH(330, 300, 600, 300, 'wire-blue', 'wire-out-ext'));
+            } else {
+                // Pin 2 -> Output LED (for NOT)
+                layer.appendChild(createWire(310, 166, 310, 300, 'wire-blue', 'wire-out'));
+                layer.appendChild(createWireH(310, 300, 600, 300, 'wire-blue', 'wire-out-ext'));
             }
         }
 
-        // Init
-        loadChip();
+        function createWire(x1, y1, x2, y2, colorClass, id) {
+            const div = document.createElement('div');
+            div.className = `wire ${colorClass}`;
+            if(id) div.id = id;
+            div.style.left = (x1 - 3) + 'px'; 
+            div.style.top = Math.min(y1, y2) + 'px';
+            div.style.width = '6px';
+            div.style.height = Math.abs(y2 - y1) + 'px';
+            return div;
+        }
+
+        function createWireH(x1, y1, x2, y2, colorClass, id) {
+            const div = document.createElement('div');
+            div.className = `wire ${colorClass}`;
+            if(id) div.id = id;
+            div.style.left = Math.min(x1, x2) + 'px';
+            div.style.top = (y1 - 3) + 'px';
+            div.style.height = '6px';
+            div.style.width = Math.abs(x2 - x1) + 'px';
+            return div;
+        }
+
+        // --- Truth Table ---
+        function renderTruthTable() {
+            const container = document.getElementById('truth-table');
+            const inputs = state.activeIC === '7404' ? [[0,0], [1,0]] : [[0,0], [0,1], [1,0], [1,1]];
+            
+            let html = '';
+            if (state.activeIC === '7404') {
+                html += `<div class="bg-slate-100 font-bold p-1 col-span-2">A</div><div class="bg-slate-100 font-bold p-1 col-span-2">F</div>`;
+            } else {
+                html += `<div class="bg-slate-100 font-bold p-1">A</div><div class="bg-slate-100 font-bold p-1">B</div><div class="bg-slate-100 font-bold p-1 col-span-2">F</div>`;
+            }
+
+            const logic = icLogic[state.activeIC].func;
+
+            inputs.forEach((inp, i) => {
+                const res = logic(inp[0], inp[1]);
+                const rowId = `tt-${i}`;
+                
+                if (state.activeIC === '7404') {
+                    html += `<div id="${rowId}" class="col-span-4 grid grid-cols-4 p-1 border-t transition-colors">
+                        <div class="col-span-2">${inp[0]}</div>
+                        <div class="col-span-2 font-bold">${res}</div>
+                    </div>`;
+                } else {
+                    html += `<div id="${rowId}" class="col-span-4 grid grid-cols-4 p-1 border-t transition-colors">
+                        <div>${inp[0]}</div>
+                        <div>${inp[1]}</div>
+                        <div class="col-span-2 font-bold">${res}</div>
+                    </div>`;
+                }
+            });
+            container.innerHTML = html;
+            highlightTruthTable();
+        }
+
+        function highlightTruthTable() {
+            if (!state.activeIC) return;
+            
+            for(let i=0; i<4; i++) {
+                const el = document.getElementById(`tt-${i}`);
+                if(el) el.classList.remove('bg-green-100', 'text-green-800', 'font-bold');
+            }
+
+            let idx = 0;
+            if(state.activeIC === '7404') {
+                idx = state.inputA;
+            } else {
+                idx = (state.inputA * 2) + state.inputB;
+            }
+            
+            const row = document.getElementById(`tt-${idx}`);
+            if(row) row.classList.add('bg-green-100', 'text-green-800', 'font-bold');
+        }
+
     </script>
 </body>
 </html>
