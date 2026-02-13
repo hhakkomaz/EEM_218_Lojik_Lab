@@ -3,672 +3,450 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deney 2: Kapıların İç Yapısı - EEM 218</title>
-    
-    <!-- Tailwind CSS -->
+    <title>Deney 2: Kapıların İç Yapısı (DL & RTL) - EEM 218</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0fdf4;
-            color: #064e3b;
-            user-select: none;
-            overflow: hidden;
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        
+        .circuit-card {
+            @apply bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300;
         }
         
-        /* Breadboard */
-        .hole {
-            width: 8px;
-            height: 8px;
-            background-color: #cbd5e1;
-            border-radius: 50%;
-            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.6);
-            position: absolute;
-        }
-        .hole.pwr-plus { background-color: #fca5a5; }
-        .hole.pwr-minus { background-color: #93c5fd; }
-
-        /* --- Discrete Components --- */
+        /* SVG Stilleri */
+        .wire { fill: none; stroke: #94a3b8; stroke-width: 3; stroke-linecap: round; transition: stroke 0.3s; }
+        .wire-active-high { stroke: #ef4444; filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.5)); } /* 5V */
+        .wire-active-low { stroke: #3b82f6; } /* GND/Low Path */
         
-        /* Diode */
-        .comp-diode {
-            position: absolute;
-            width: 40px;
-            height: 14px;
-            background: linear-gradient(90deg, #333 70%, #d1d5db 70%); /* Black body, silver band */
-            border-radius: 7px;
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-        }
-        .comp-diode::before, .comp-diode::after {
-            content: '';
-            position: absolute;
-            height: 2px;
-            width: 10px;
-            background-color: #9ca3af; /* Legs */
-            z-index: -1;
-        }
-        .comp-diode::before { left: -10px; }
-        .comp-diode::after { right: -10px; }
+        .component-body { fill: #1e293b; stroke: #0f172a; stroke-width: 1; }
+        .component-text { font-family: monospace; font-size: 10px; fill: white; font-weight: bold; }
+        .label-text { font-size: 11px; font-weight: 600; fill: #64748b; }
         
-        /* Diode Icon in Text */
-        .diode-icon {
-            display: inline-block;
-            width: 20px;
-            height: 10px;
-            background: linear-gradient(90deg, #333 70%, #ccc 70%);
-            border-radius: 2px;
-            margin-right: 5px;
-        }
-
-        /* Resistor */
-        .comp-resistor {
-            position: absolute;
-            width: 40px;
-            height: 12px;
-            background-color: #fca5a5; /* Base color */
-            border-radius: 6px;
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-            z-index: 20;
-            background-image: linear-gradient(90deg, 
-                transparent 10%, #d97706 10%, #d97706 20%, 
-                transparent 20%, transparent 40%, #000 40%, #000 50%, 
-                transparent 50%, transparent 70%, #ef4444 70%, #ef4444 80%, 
-                transparent 80%);
-        }
-        .comp-resistor::before, .comp-resistor::after {
-            content: '';
-            position: absolute;
-            height: 2px;
-            width: 10px;
-            background-color: #9ca3af;
-            z-index: -1;
-        }
-        .comp-resistor::before { left: -10px; }
-        .comp-resistor::after { right: -10px; }
-
-        /* Transistor (TO-92 Top View) */
-        .comp-transistor {
-            position: absolute;
-            width: 20px;
-            height: 16px;
-            background-color: #1f2937;
-            border-radius: 10px 10px 0 0; /* D-shape */
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-            z-index: 21;
-        }
-        .comp-transistor span {
-            position: absolute;
-            font-size: 8px;
-            color: white;
-            top: 2px;
-            left: 4px;
-        }
-        .transistor-leg {
-            position: absolute;
-            width: 2px;
-            height: 10px;
-            background-color: #9ca3af;
-            bottom: -10px;
-        }
+        /* Tablo Stilleri */
+        .result-table th { @apply bg-slate-100 p-2 text-xs font-bold text-slate-600 border border-slate-200; }
+        .result-table td { @apply p-2 text-xs border border-slate-200 text-center; }
+        .row-active { @apply bg-blue-50 border-blue-200; }
         
-        /* Draggable Source */
-        .circuit-source {
-            width: 100%;
-            height: 50px;
-            background-color: white;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            font-weight: bold;
-            color: #334155;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
-        .circuit-source:hover {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-        }
-        .circuit-source:active { cursor: grabbing; }
-
-        /* Wires */
-        .wire {
-            position: absolute;
-            height: 6px;
-            border-radius: 3px;
-            opacity: 0.9;
-            z-index: 15;
-            pointer-events: none;
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            transform-origin: left center;
-        }
-        .wire.red { background-color: #ef4444; border: 1px solid #991b1b; }
-        .wire.black { background-color: #1f2937; border: 1px solid black; }
-        .wire.green { background-color: #22c55e; border: 1px solid #166534; }
-        .wire.yellow { background-color: #eab308; border: 1px solid #854d0e; }
-        .wire.blue { background-color: #3b82f6; border: 1px solid #1e40af; }
-
-        /* Controls */
-        .led-bulb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: #374151;
-            border: 2px solid #111;
-            transition: all 0.1s;
-        }
-        .led-bulb.on {
-            background-color: #ef4444;
-            box-shadow: 0 0 12px #ef4444, inset 2px 2px 4px rgba(255,255,255,0.4);
-            border-color: #7f1d1d;
-        }
-        .switch-base {
-            width: 40px;
-            height: 60px;
-            background-color: #ef4444;
-            border-radius: 4px;
-            position: relative;
-            cursor: pointer;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-        }
-        .switch-lever {
-            width: 32px;
-            height: 24px;
-            background-color: white;
-            position: absolute;
-            left: 4px;
-            border-radius: 2px;
-            transition: top 0.2s;
-            box-shadow: 0 2px 2px rgba(0,0,0,0.2);
-        }
-        .switch-base.on .switch-lever { top: 4px; }
-        .switch-base.off .switch-lever { top: 32px; }
-        .switch-label {
-            position: absolute;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            width: 100%;
-            text-align: center;
-        }
-
+        /* Kontrol Butonları */
+        .btn-input { @apply px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-colors; }
+        .btn-on { @apply bg-slate-800 text-white border-slate-800; }
+        .btn-off { @apply bg-white text-slate-600 border-slate-200 hover:border-slate-400; }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="pb-20">
 
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-green-200 z-50 shrink-0 h-16 flex items-center px-4 justify-between">
-        <div class="flex items-center gap-4">
-            <a href="index.html" class="p-2 hover:bg-green-50 rounded-full text-green-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            </a>
-            <div>
-                <h1 class="text-xl font-bold text-slate-900">Deney 2: Kapıların İç Yapısı</h1>
-                <p class="text-xs text-slate-500 hidden sm:block">Diyot, Direnç ve Transistör Mantığı (DL & RTL)</p>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-green-600 text-white p-2 rounded-lg">
+                    <span class="font-bold text-lg">EEM 218</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 leading-none">Deney 2</h1>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Kapıların İç Yapısı (Diyot & Transistör Mantığı)</p>
+                </div>
             </div>
+            <a href="index.html" class="text-sm font-bold text-slate-500 hover:text-green-600 transition-colors flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Ana Sayfa
+            </a>
         </div>
-        <button onclick="resetExperiment()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition-colors text-sm font-bold">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-            Sıfırla
-        </button>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        
-        <!-- Sidebar -->
-        <aside class="w-64 bg-slate-50 border-r border-slate-200 p-4 flex flex-col gap-6 shrink-0 overflow-y-auto z-40">
-            <div>
-                <h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                    Devre Elemanları
-                </h3>
-                <p class="text-xs text-slate-500 mb-4">Devre paketini sürükleyip tahtaya bırakın.</p>
-                
-                <div class="space-y-4">
-                    <!-- OR -->
-                    <div class="circuit-source" draggable="true" ondragstart="drag(event)" data-type="diode-or">
-                        <div class="flex items-center gap-2">
-                            <span class="diode-icon"></span>
-                            <span>Diyotlu OR</span>
-                        </div>
-                    </div>
-                    <!-- AND -->
-                    <div class="circuit-source" draggable="true" ondragstart="drag(event)" data-type="diode-and">
-                        <div class="flex items-center gap-2">
-                            <span class="diode-icon" style="transform: rotate(180deg)"></span>
-                            <span>Diyotlu AND</span>
-                        </div>
-                    </div>
-                    <!-- NOT -->
-                    <div class="circuit-source" draggable="true" ondragstart="drag(event)" data-type="transistor-not">
-                        <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 bg-black rounded-full text-[6px] text-white flex items-center justify-center">Q</div>
-                            <span>Transistör NOT</span>
-                        </div>
-                    </div>
+    <main class="container mx-auto px-6 py-10 space-y-12 max-w-5xl">
+
+        <!-- Intro -->
+        <section class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden">
+            <div class="relative z-10 max-w-2xl">
+                <h2 class="text-2xl font-bold mb-4">Teorik Giriş</h2>
+                <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                    Entegre devrelerin (IC) içerisindeki lojik kapılar sihirli kutular değildir. Temelde <b>diyotların</b> akım yönlendirme yeteneği (DL - Diode Logic) ve <b>transistörlerin</b> anahtarlama yeteneği (RTL - Resistor Transistor Logic) kullanılarak oluşturulurlar. Bu deneyde bu temel yapı taşlarını analiz edeceğiz.
+                </p>
+                <div class="flex gap-4">
+                    <div class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold border border-white/20">Diyot: Tek Yönlü Valf</div>
+                    <div class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold border border-white/20">Transistör: Elektronik Anahtar</div>
                 </div>
             </div>
+            <!-- Decorative BG Icon -->
+            <svg class="absolute right-0 top-0 h-full w-64 text-white/5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12l-4-4v3H3v2h15v3l4-4z"/></svg>
+        </section>
 
-            <div class="mt-auto bg-blue-50 p-3 rounded border border-blue-100 text-xs text-blue-900">
-                <strong>Deneyin Mantığı</strong>
-                <ul class="list-disc ml-4 mt-1 space-y-1">
-                    <li><strong>OR:</strong> Diyotlar "1"i geçirir. Herhangi bir giriş 1 ise çıkış 1 olur.</li>
-                    <li><strong>AND:</strong> Diyotlar "0"ı geçirir (ters bağlı). Herhangi bir giriş 0 ise çıkış 0 olur.</li>
-                    <li><strong>NOT:</strong> Transistör anahtar gibidir. Giriş 1 ise iletime geçer, çıkışı toprağa (0) çeker.</li>
-                </ul>
-            </div>
-        </aside>
-
-        <!-- Main Workspace -->
-        <main class="flex-1 bg-slate-200 relative flex flex-col items-center p-4 overflow-y-auto">
-            
-            <div class="w-full max-w-4xl space-y-8 pb-10">
-
-                <!-- Theory -->
-                <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-xl font-bold text-slate-800 mb-6">Teorik Bilgiler: Kapıların İç Yapısı</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-                        <!-- OR Theory -->
-                        <div class="bg-slate-50 p-4 rounded border">
-                            <h3 class="font-bold text-slate-700 mb-2">Diyotlu OR (Veya)</h3>
-                            <p class="mb-2">Girişlerden biri yüksek (+5V) olduğunda ilgili diyot doğru polarmalanır ve akım çıkışa akar.</p>
-                            <div class="h-20 bg-white border rounded flex items-center justify-center mb-2">
-                                <svg width="100" height="60">
-                                    <line x1="10" y1="15" x2="30" y2="15" stroke="black"/> <!-- A -->
-                                    <polygon points="30,10 30,20 40,15" fill="black"/> <!-- Diode 1 -->
-                                    <line x1="40" y1="15" x2="60" y2="15" stroke="black"/>
-                                    <line x1="10" y1="45" x2="30" y2="45" stroke="black"/> <!-- B -->
-                                    <polygon points="30,40 30,50 40,45" fill="black"/> <!-- Diode 2 -->
-                                    <line x1="40" y1="45" x2="60" y2="45" stroke="black"/>
-                                    <line x1="60" y1="15" x2="60" y2="45" stroke="black"/> <!-- Join -->
-                                    <line x1="60" y1="30" x2="90" y2="30" stroke="black"/> <!-- Out -->
-                                    <line x1="75" y1="30" x2="75" y2="50" stroke="black"/> <!-- To R -->
-                                    <rect x="70" y="50" width="10" height="15" fill="none" stroke="black"/> <!-- R -->
-                                    <line x1="75" y1="65" x2="75" y2="70" stroke="black"/> <!-- GND stub -->
-                                </svg>
-                            </div>
-                        </div>
-                        <!-- AND Theory -->
-                        <div class="bg-slate-50 p-4 rounded border">
-                            <h3 class="font-bold text-slate-700 mb-2">Diyotlu AND (Ve)</h3>
-                            <p class="mb-2">Girişlerden biri düşük (0V) olduğunda ilgili diyot iletime geçer ve çıkışı toprağa çeker. Çıkışın 1 olması için tüm diyotlar kesimde (girişler 1) olmalıdır.</p>
-                            <div class="h-20 bg-white border rounded flex items-center justify-center mb-2">
-                                <svg width="100" height="60">
-                                    <line x1="10" y1="15" x2="30" y2="15" stroke="black"/> <!-- A -->
-                                    <polygon points="40,10 40,20 30,15" fill="black"/> <!-- Diode 1 Back -->
-                                    <line x1="40" y1="15" x2="60" y2="15" stroke="black"/>
-                                    <line x1="10" y1="45" x2="30" y2="45" stroke="black"/> <!-- B -->
-                                    <polygon points="40,40 40,50 30,45" fill="black"/> <!-- Diode 2 Back -->
-                                    <line x1="40" y1="45" x2="60" y2="45" stroke="black"/>
-                                    <line x1="60" y1="15" x2="60" y2="45" stroke="black"/> <!-- Join -->
-                                    <line x1="60" y1="30" x2="90" y2="30" stroke="black"/> <!-- Out -->
-                                    <line x1="75" y1="30" x2="75" y2="10" stroke="black"/> <!-- To R -->
-                                    <rect x="70" y="-5" width="10" height="15" fill="none" stroke="black"/> <!-- R -->
-                                </svg>
-                            </div>
-                        </div>
-                        <!-- NOT Theory -->
-                        <div class="bg-slate-50 p-4 rounded border">
-                            <h3 class="font-bold text-slate-700 mb-2">Transistörlü NOT (RTL)</h3>
-                            <p class="mb-2">Giriş 1 ise transistör doüma gider (anahtar kapalı), çıkış 0V olur. Giriş 0 ise transistör kesimde (anahtar açık), çıkış VCC olur.</p>
-                             <div class="h-20 bg-white border rounded flex items-center justify-center mb-2">
-                                <svg width="100" height="60">
-                                    <line x1="10" y1="30" x2="30" y2="30" stroke="black"/> <!-- Base R -->
-                                    <rect x="30" y="25" width="10" height="10" fill="none" stroke="black"/>
-                                    <line x1="40" y1="30" x2="50" y2="30" stroke="black"/>
-                                    <circle cx="55" cy="30" r="10" fill="none" stroke="black"/>
-                                    <line x1="55" y1="20" x2="55" y2="10" stroke="black"/> <!-- Coll -->
-                                    <line x1="55" y1="10" x2="90" y2="10" stroke="black"/> <!-- Out -->
-                                    <line x1="55" y1="40" x2="55" y2="50" stroke="black"/> <!-- Emit -->
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Breadboard Area -->
-                <div class="flex flex-col items-center">
-                    <h3 class="text-lg font-bold text-slate-700 mb-4 w-full text-left border-l-4 border-slate-600 pl-3">Simülasyon</h3>
+        <!-- 1. OR GATE (Diyotlu VEYA) -->
+        <section id="or-section" class="grid lg:grid-cols-12 gap-8">
+            <!-- Sol Panel: Bilgi ve Tablo -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="circuit-card border-l-4 border-l-blue-500">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-xs">1</span>
+                        Diyotlu OR Kapısı
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4">
+                        Girişlerden en az biri yüksek (+5V) olduğunda, o hattaki diyot <b>doğru polarmalanır</b> ve iletime geçer. Akım diyot üzerinden çıkış direncine akar.
+                    </p>
                     
-                    <div id="board-container" class="relative w-[700px] h-[450px] bg-white rounded-lg shadow-2xl border-b-[8px] border-r-[8px] border-slate-400 shrink-0 transform transition-transform duration-300"
-                        ondragover="allowDrop(event)" 
-                        ondrop="drop(event)">
-                        
-                        <div class="absolute top-2 left-4 text-xs font-bold text-slate-400 tracking-widest pointer-events-none">SANAL BREADBOARD</div>
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-4">
+                        <h4 class="text-xs font-bold text-blue-800 mb-1">Beklenen Sonuç</h4>
+                        <p class="text-[10px] text-blue-700">Çıkış voltajı, giriş voltajından diyot eşik gerilimi (Si için ~0.7V) kadar düşük olacaktır.</p>
+                    </div>
 
-                        <!-- 1. Power Rails Top -->
-                        <div id="rail-top" class="absolute top-[30px] left-[40px] right-[40px] h-[30px]"></div>
-                        <div class="absolute top-[28px] left-[40px] right-[40px] h-[1px] bg-red-400 opacity-50"></div>
-                        <div class="absolute top-[58px] left-[40px] right-[40px] h-[1px] bg-blue-400 opacity-50"></div>
+                    <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Ölçüm Tablosu</h4>
+                    <table class="w-full result-table">
+                        <thead><tr><th>A</th><th>B</th><th>Çıkış (Teorik)</th><th>Durum</th></tr></thead>
+                        <tbody>
+                            <tr id="or-row-00"><td>0V</td><td>0V</td><td>0V</td><td>Kapalı</td></tr>
+                            <tr id="or-row-01"><td>0V</td><td>5V</td><td>~4.3V</td><td>Açık</td></tr>
+                            <tr id="or-row-10"><td>5V</td><td>0V</td><td>~4.3V</td><td>Açık</td></tr>
+                            <tr id="or-row-11"><td>5V</td><td>5V</td><td>~4.3V</td><td>Açık</td></tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                        <!-- 2. Main Board Area -->
-                        <div id="holes-top" class="absolute top-[80px] left-[40px] w-[620px] h-[50px]"></div>
-                        <div class="absolute top-[135px] left-[30px] right-[30px] h-[10px] bg-slate-100 rounded-sm border-y border-slate-200"></div>
-                        <div id="holes-bottom" class="absolute top-[150px] left-[40px] w-[620px] h-[50px]"></div>
-
-                        <!-- 3. Power Rails Bottom -->
-                        <div id="rail-bottom" class="absolute top-[230px] left-[40px] right-[40px] h-[30px]"></div>
-                        <div class="absolute top-[228px] left-[40px] right-[40px] h-[1px] bg-red-400 opacity-50"></div>
-                        <div class="absolute top-[258px] left-[40px] right-[40px] h-[1px] bg-blue-400 opacity-50"></div>
-
-                        <!-- Components Layer -->
-                        <div id="components-layer" class="absolute inset-0 pointer-events-none z-20"></div>
-
-                        <!-- Wires Layer -->
-                        <div id="wires-layer" class="absolute inset-0 pointer-events-none z-10"></div>
-
-                        <!-- Controls -->
-                        <div class="absolute bottom-[20px] left-[40px] flex gap-12 items-center bg-slate-200 p-4 rounded-lg border border-slate-300 shadow-inner z-30">
-                            <div class="text-center">
-                                <div class="text-[10px] font-bold text-slate-600 mb-1">GİRİŞ A</div>
-                                <div id="sw-a" class="switch-base off" onclick="toggleSwitch('a')">
-                                    <div class="switch-label" style="top: 4px">1</div>
-                                    <div class="switch-lever"></div>
-                                    <div class="switch-label" style="bottom: 4px">0</div>
-                                </div>
-                            </div>
-                            <div class="text-center" id="sw-b-container">
-                                <div class="text-[10px] font-bold text-slate-600 mb-1">GİRİŞ B</div>
-                                <div id="sw-b" class="switch-base off" onclick="toggleSwitch('b')">
-                                    <div class="switch-label" style="top: 4px">1</div>
-                                    <div class="switch-lever"></div>
-                                    <div class="switch-label" style="bottom: 4px">0</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Output -->
-                        <div class="absolute bottom-[40px] right-[60px] flex flex-col items-center z-30">
-                            <div class="text-[10px] font-bold text-slate-600 mb-2">ÇIKIŞ F</div>
-                            <div id="led-f" class="led-bulb"></div>
-                        </div>
-
-                        <!-- Hint -->
-                        <div id="drop-hint" class="absolute top-[130px] left-0 right-0 text-center pointer-events-none opacity-50 z-30">
-                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded border border-yellow-300 font-bold animate-pulse">
-                                DEVRE PAKETİNİ BURAYA SÜRÜKLEYİN
-                            </span>
-                        </div>
+                <!-- Kontrol -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-500">Girişleri Değiştir:</span>
+                    <div class="flex gap-2">
+                        <button onclick="updateOR(0,0)" class="btn-input btn-on" id="or-btn-00">0 - 0</button>
+                        <button onclick="updateOR(0,1)" class="btn-input btn-off" id="or-btn-01">0 - 1</button>
+                        <button onclick="updateOR(1,0)" class="btn-input btn-off" id="or-btn-10">1 - 0</button>
+                        <button onclick="updateOR(1,1)" class="btn-input btn-off" id="or-btn-11">1 - 1</button>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Truth Table -->
-            <div class="fixed bottom-4 right-4 bg-white/90 backdrop-blur p-4 rounded-lg shadow-lg border border-slate-200 w-64 z-50 transition-opacity">
-                <div class="flex justify-between items-center mb-2 border-b pb-1">
-                    <h4 class="font-bold text-sm text-slate-700">Canlı Doğruluk Tablosu</h4>
-                    <span class="text-[10px] text-green-600 font-bold animate-pulse">●</span>
+            <!-- Sağ Panel: İnteraktif Şema -->
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-inner flex flex-col items-center justify-center p-6 relative">
+                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.1: DİYOTLU OR</span>
+                
+                <svg width="400" height="250" viewBox="0 0 400 250">
+                    <!-- Girişler -->
+                    <text x="30" y="65" class="label-text">A</text>
+                    <text x="30" y="165" class="label-text">B</text>
+
+                    <!-- Wires A -->
+                    <path id="or-wire-a" d="M 50 60 L 120 60" class="wire" />
+                    <!-- Diode A -->
+                    <g transform="translate(120, 50)">
+                        <rect width="30" height="20" class="component-body" />
+                        <line x1="25" y1="0" x2="25" y2="20" stroke="#94a3b8" stroke-width="2" /> <!-- Cathode stripe -->
+                        <text x="5" y="14" class="component-text">D1</text>
+                    </g>
+                    <path id="or-wire-a-out" d="M 150 60 L 220 60 L 220 110" class="wire" />
+
+                    <!-- Wires B -->
+                    <path id="or-wire-b" d="M 50 160 L 120 160" class="wire" />
+                    <!-- Diode B -->
+                    <g transform="translate(120, 150)">
+                        <rect width="30" height="20" class="component-body" />
+                        <line x1="25" y1="0" x2="25" y2="20" stroke="#94a3b8" stroke-width="2" />
+                        <text x="5" y="14" class="component-text">D2</text>
+                    </g>
+                    <path id="or-wire-b-out" d="M 150 160 L 220 160 L 220 110" class="wire" />
+
+                    <!-- Junction & Output -->
+                    <circle cx="220" cy="110" r="4" fill="#0f172a" />
+                    <path id="or-wire-out" d="M 220 110 L 350 110" class="wire" />
+                    
+                    <!-- Resistor to GND -->
+                    <path id="or-wire-res" d="M 220 110 L 220 150" class="wire" />
+                    <g transform="translate(210, 150)">
+                        <rect width="20" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
+                        <line x1="0" y1="10" x2="20" y2="10" stroke="#b91c1c" stroke-width="2" />
+                        <line x1="0" y1="20" x2="20" y2="20" stroke="#b91c1c" stroke-width="2" />
+                        <line x1="0" y1="30" x2="20" y2="30" stroke="#b91c1c" stroke-width="2" />
+                    </g>
+                    <path d="M 220 190 L 220 210" class="wire" stroke="#3b82f6" />
+                    <text x="210" y="225" class="label-text">GND</text>
+
+                    <!-- Output Indicator -->
+                    <circle id="or-led" cx="350" cy="110" r="8" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+                    <text x="365" y="115" class="label-text">F</text>
+                </svg>
+            </div>
+        </section>
+
+        <!-- 2. AND GATE (Diyotlu VE) -->
+        <section id="and-section" class="grid lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="circuit-card border-l-4 border-l-red-500">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded bg-red-100 text-red-600 flex items-center justify-center text-xs">2</span>
+                        Diyotlu AND Kapısı
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4">
+                        Diyotlar <b>ters</b> bağlanmıştır. Çıkış bir dirençle VCC (+5V)'ye çekilir (Pull-up). Eğer herhangi bir giriş 0V olursa, akım o diyot üzerinden toprağa akar ve çıkışı 0V'a çeker.
+                    </p>
+                    
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-100 mb-4">
+                        <h4 class="text-xs font-bold text-red-800 mb-1">Önemli</h4>
+                        <p class="text-[10px] text-red-700">Çıkışın Yüksek (5V) olabilmesi için TÜM diyotların kesimde (girişlerin 5V) olması gerekir.</p>
+                    </div>
+
+                    <table class="w-full result-table">
+                        <thead><tr><th>A</th><th>B</th><th>Çıkış (Teorik)</th><th>Durum</th></tr></thead>
+                        <tbody>
+                            <tr id="and-row-00"><td>0V</td><td>0V</td><td>~0.7V</td><td>Kapalı</td></tr>
+                            <tr id="and-row-01"><td>0V</td><td>5V</td><td>~0.7V</td><td>Kapalı</td></tr>
+                            <tr id="and-row-10"><td>5V</td><td>0V</td><td>~0.7V</td><td>Kapalı</td></tr>
+                            <tr id="and-row-11"><td>5V</td><td>5V</td><td>5V</td><td>Açık</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="grid grid-cols-4 gap-1 text-center text-xs" id="truth-table">
-                    <div class="col-span-4 text-slate-400 py-2">Veri yok. Devre kurunuz.</div>
+                
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-500">Girişleri Değiştir:</span>
+                    <div class="flex gap-2">
+                        <button onclick="updateAND(0,0)" class="btn-input btn-on" id="and-btn-00">0 - 0</button>
+                        <button onclick="updateAND(0,1)" class="btn-input btn-off" id="and-btn-01">0 - 1</button>
+                        <button onclick="updateAND(1,0)" class="btn-input btn-off" id="and-btn-10">1 - 0</button>
+                        <button onclick="updateAND(1,1)" class="btn-input btn-off" id="and-btn-11">1 - 1</button>
+                    </div>
                 </div>
             </div>
 
-        </main>
-    </div>
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-inner flex flex-col items-center justify-center p-6 relative">
+                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.2: DİYOTLU AND</span>
+                
+                <svg width="400" height="250" viewBox="0 0 400 250">
+                    <!-- VCC ve Direnç -->
+                    <text x="210" y="20" class="label-text fill-red-600">VCC</text>
+                    <path d="M 220 25 L 220 50" class="wire wire-active-high" />
+                    <g transform="translate(210, 50)">
+                        <rect width="20" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
+                        <line x1="0" y1="10" x2="20" y2="10" stroke="#b91c1c" stroke-width="2" />
+                    </g>
+                    <path id="and-wire-main" d="M 220 90 L 220 120" class="wire" />
+                    <circle cx="220" cy="120" r="4" fill="#0f172a" />
+
+                    <!-- Çıkış -->
+                    <path id="and-wire-out" d="M 220 120 L 350 120" class="wire" />
+                    <circle id="and-led" cx="350" cy="120" r="8" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+                    <text x="365" y="125" class="label-text">F</text>
+
+                    <!-- Diyot Kolları -->
+                    <!-- A -->
+                    <path id="and-wire-ja" d="M 220 120 L 220 160 L 150 160" class="wire" />
+                    <g transform="translate(120, 150)">
+                        <rect width="30" height="20" class="component-body" />
+                        <line x1="5" y1="0" x2="5" y2="20" stroke="#94a3b8" stroke-width="2" /> <!-- Cathode (Left) -->
+                        <text x="12" y="14" class="component-text">D1</text>
+                    </g>
+                    <path id="and-wire-a" d="M 120 160 L 60 160" class="wire" />
+                    <text x="45" y="165" class="label-text">A</text>
+
+                    <!-- B -->
+                    <path id="and-wire-jb" d="M 220 120 L 220 200 L 150 200" class="wire" />
+                    <g transform="translate(120, 190)">
+                        <rect width="30" height="20" class="component-body" />
+                        <line x1="5" y1="0" x2="5" y2="20" stroke="#94a3b8" stroke-width="2" /> <!-- Cathode (Left) -->
+                        <text x="12" y="14" class="component-text">D2</text>
+                    </g>
+                    <path id="and-wire-b" d="M 120 200 L 60 200" class="wire" />
+                    <text x="45" y="205" class="label-text">B</text>
+
+                </svg>
+            </div>
+        </section>
+
+        <!-- 3. NOT GATE (Transistörlü) -->
+        <section id="not-section" class="grid lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="circuit-card border-l-4 border-l-purple-500">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs">3</span>
+                        Transistörlü NOT (RTL)
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4">
+                        Transistör bir anahtar gibi çalışır. Giriş (Beyz) akımı olduğunda transistör <b>doyuma</b> (Saturation) girer ve çıkışı (Kollektör) toprağa çeker (0V). Giriş 0V ise transistör <b>kesimdedir</b> (Cut-off) ve çıkış VCC'ye yükselir.
+                    </p>
+                    
+                    <table class="w-full result-table">
+                        <thead><tr><th>Giriş (A)</th><th>Transistör Modu</th><th>Çıkış (F)</th></tr></thead>
+                        <tbody>
+                            <tr id="not-row-0"><td>0V</td><td>Kesim (Açık Anahtar)</td><td>5V</td></tr>
+                            <tr id="not-row-1"><td>5V</td><td>Doyum (Kapalı Anahtar)</td><td>~0.2V</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-500">Giriş Anahtarı:</span>
+                    <div class="flex gap-2">
+                        <button onclick="updateNOT(0)" class="btn-input btn-on" id="not-btn-0">A = 0 (Low)</button>
+                        <button onclick="updateNOT(1)" class="btn-input btn-off" id="not-btn-1">A = 1 (High)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-inner flex flex-col items-center justify-center p-6 relative">
+                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.3: RTL NOT</span>
+                
+                <svg width="400" height="250" viewBox="0 0 400 250">
+                    <!-- VCC & Rc -->
+                    <text x="230" y="20" class="label-text fill-red-600">VCC</text>
+                    <path d="M 240 25 L 240 50" class="wire wire-active-high" />
+                    <g transform="translate(230, 50)">
+                        <rect width="20" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
+                        <text x="25" y="25" class="label-text">Rc</text>
+                    </g>
+                    <path id="not-wire-coll-top" d="M 240 90 L 240 120" class="wire" />
+                    
+                    <!-- Output -->
+                    <circle cx="240" cy="120" r="4" fill="#0f172a" />
+                    <path id="not-wire-out" d="M 240 120 L 350 120" class="wire" />
+                    <circle id="not-led" cx="350" cy="120" r="8" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+                    <text x="365" y="125" class="label-text">F</text>
+
+                    <!-- Transistor -->
+                    <circle cx="240" cy="150" r="15" fill="none" stroke="#334155" stroke-width="1" />
+                    <line x1="240" y1="120" x2="240" y2="140" stroke="#334155" stroke-width="2" /> <!-- Collector Leg -->
+                    <line x1="240" y1="160" x2="240" y2="180" stroke="#334155" stroke-width="2" /> <!-- Emitter Leg -->
+                    <line x1="220" y1="150" x2="230" y2="150" stroke="#334155" stroke-width="2" /> <!-- Base Leg -->
+                    
+                    <line x1="230" y1="140" x2="230" y2="160" stroke="#334155" stroke-width="3" /> <!-- Base Plate -->
+                    <line x1="240" y1="140" x2="230" y2="145" stroke="#334155" stroke-width="2" /> <!-- Coll Internal -->
+                    <line x1="240" y1="160" x2="230" y2="155" stroke="#334155" stroke-width="2" /> <!-- Emit Internal -->
+                    <polygon points="240,160 236,156 234,162" fill="#334155" /> <!-- Arrow -->
+
+                    <!-- Base Resistor & Input -->
+                    <path id="not-wire-base-inner" d="M 220 150 L 190 150" class="wire" />
+                    <g transform="translate(150, 130)">
+                        <rect width="40" height="20" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
+                        <text x="10" y="-5" class="label-text">Rb</text>
+                    </g>
+                    <path id="not-wire-in" d="M 150 150 L 80 150" class="wire" />
+                    <text x="65" y="155" class="label-text">A</text>
+
+                    <!-- Emitter to GND -->
+                    <path d="M 240 180 L 240 210" class="wire wire-active-low" />
+                    <text x="230" y="225" class="label-text">GND</text>
+                </svg>
+            </div>
+        </section>
+
+    </main>
 
     <script>
-        // Config
-        const boardConfig = {
-            colCount: 30,
-            colPitch: 20,
-            startX: 45
-        };
-
-        const circuitLogic = {
-            'diode-or': { func: (a, b) => a | b, name: 'OR' },
-            'diode-and': { func: (a, b) => a & b, name: 'AND' },
-            'transistor-not': { func: (a, b) => !a & 1, name: 'NOT' }
-        };
-
-        let state = { inputA: 0, inputB: 0, activeCircuit: null };
-
-        // Initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            renderHoles();
-        });
-
-        // Drag & Drop
-        function allowDrop(ev) { ev.preventDefault(); document.getElementById('board-container').classList.add('ring-4', 'ring-green-300'); }
-        function drag(ev) { ev.dataTransfer.setData("type", ev.target.dataset.type); }
-        function drop(ev) {
-            ev.preventDefault();
-            document.getElementById('board-container').classList.remove('ring-4', 'ring-green-300');
-            const type = ev.dataTransfer.getData("type");
-            if(type) placeCircuit(type);
-        }
-
-        function resetExperiment() {
-            state.activeCircuit = null;
-            state.inputA = 0; state.inputB = 0;
-            document.getElementById('components-layer').innerHTML = '';
-            document.getElementById('wires-layer').innerHTML = '';
-            document.getElementById('drop-hint').classList.remove('hidden');
-            document.getElementById('sw-a').className = "switch-base off";
-            document.getElementById('sw-b').className = "switch-base off";
-            document.getElementById('truth-table').innerHTML = '<div class="col-span-4 text-slate-400 py-2">Veri yok. Devre kurunuz.</div>';
-            document.getElementById('sw-b-container').style.opacity = '1';
-            document.getElementById('sw-b-container').style.pointerEvents = 'auto';
-            updateOutput();
-        }
-
-        function toggleSwitch(id) {
-            if(id === 'a') state.inputA = state.inputA ? 0 : 1;
-            else state.inputB = state.inputB ? 0 : 1;
-            
-            document.getElementById(`sw-${id}`).className = `switch-base ${state['input'+id.toUpperCase()] ? 'on' : 'off'}`;
-            updateOutput();
-        }
-
-        function placeCircuit(type) {
-            state.activeCircuit = type;
-            document.getElementById('drop-hint').classList.add('hidden');
-            document.getElementById('components-layer').innerHTML = '';
-            document.getElementById('wires-layer').innerHTML = '';
-
-            // Handle NOT gate inputs
-            const swB = document.getElementById('sw-b-container');
-            if(type === 'transistor-not') {
-                swB.style.opacity = '0.3';
-                swB.style.pointerEvents = 'none';
-            } else {
-                swB.style.opacity = '1';
-                swB.style.pointerEvents = 'auto';
-            }
-
-            drawComponents(type);
-            updateOutput();
-            renderTruthTable();
-        }
-
-        function updateOutput() {
-            const led = document.getElementById('led-f');
-            if(!state.activeCircuit) {
-                led.classList.remove('on');
-                return;
-            }
-            const res = circuitLogic[state.activeCircuit].func(state.inputA, state.inputB);
-            if(res) led.classList.add('on'); else led.classList.remove('on');
-            
-            // Wire Animation
-            updateWires(res);
-            highlightTruthTable();
-        }
-
-        // --- Drawing Helpers ---
-        function drawComponents(type) {
-            const compLayer = document.getElementById('components-layer');
-            const wireLayer = document.getElementById('wires-layer');
-
-            // Helper to add component
-            const addComp = (cls, x, y, rotate=0) => {
-                const el = document.createElement('div');
-                el.className = cls;
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
-                if(rotate) el.style.transform = `rotate(${rotate}deg)`;
-                compLayer.appendChild(el);
-            };
-
-            // Helper to add wire
-            const addWire = (x1, y1, x2, y2, color, id) => {
-                const w = document.createElement('div');
-                w.className = `wire ${color}`;
-                if(id) w.id = id;
-                const width = Math.abs(x2-x1) || 6;
-                const height = Math.abs(y2-y1) || 6;
-                w.style.left = Math.min(x1,x2) + 'px';
-                w.style.top = Math.min(y1,y2) + 'px';
-                w.style.width = width + 'px';
-                w.style.height = height + 'px';
-                wireLayer.appendChild(w);
-            };
-
-            // Center X ~ 350px
-            if(type === 'diode-or') {
-                // Diode 1 (A -> Node)
-                addComp('comp-diode', 280, 115); // A Input Row
-                // Diode 2 (B -> Node)
-                addComp('comp-diode', 340, 115); // B Input Row
-                // Resistor (Node -> GND)
-                addComp('comp-resistor', 310, 155, 90);
-                
-                // Wires
-                // A to D1
-                addWire(285, 115, 285, 320, 'wire-yellow', 'w-a'); 
-                // B to D2
-                addWire(345, 115, 345, 320, 'wire-yellow', 'w-b');
-                // Node Junction
-                addWire(295, 122, 365, 122, 'wire-black'); // Horizontal connect Diodes
-                addWire(330, 122, 330, 150, 'wire-black'); // To Resistor
-                // Resistor to GND
-                addWire(330, 185, 330, 240, 'wire-black'); 
-                // Output
-                addWire(330, 122, 500, 122, 'wire-blue', 'w-out'); // To LED
-                addWire(500, 122, 500, 300, 'wire-blue', 'w-out-2'); 
-
-            } else if(type === 'diode-and') {
-                 // Diode 1 (A <- Node) Reversed
-                addComp('comp-diode', 280, 115, 180); 
-                // Diode 2 (B <- Node) Reversed
-                addComp('comp-diode', 340, 115, 180);
-                // Resistor (Node -> VCC)
-                addComp('comp-resistor', 310, 80, 90);
-
-                 // Wires
-                // A to D1
-                addWire(285, 115, 285, 320, 'wire-yellow', 'w-a');
-                // B to D2
-                addWire(345, 115, 345, 320, 'wire-yellow', 'w-b');
-                // Node Junction
-                addWire(295, 122, 365, 122, 'wire-black');
-                addWire(330, 122, 330, 100, 'wire-black'); // To Resistor
-                // Resistor to VCC
-                addWire(330, 70, 330, 40, 'wire-red');
-                // Output
-                addWire(330, 122, 500, 122, 'wire-blue', 'w-out');
-                addWire(500, 122, 500, 300, 'wire-blue', 'w-out-2');
-
-            } else if(type === 'transistor-not') {
-                // Transistor
-                addComp('comp-transistor', 320, 110);
-                // Base Resistor (Input A -> Base)
-                addComp('comp-resistor', 270, 112);
-                // Collector Resistor (VCC -> Collector)
-                addComp('comp-resistor', 325, 80, 90);
-
-                // Wires
-                // A to Base Resistor
-                addWire(260, 118, 260, 320, 'wire-yellow', 'w-a');
-                // Emitter to GND
-                addWire(330, 126, 330, 240, 'wire-black');
-                // Resistor to VCC
-                addWire(345, 70, 345, 40, 'wire-red');
-                // Collector Output
-                addWire(330, 110, 500, 110, 'wire-blue', 'w-out');
-                addWire(500, 110, 500, 300, 'wire-blue', 'w-out-2');
-            }
-        }
-
-        function updateWires(res) {
-            const wa = document.getElementById('w-a');
-            const wb = document.getElementById('w-b');
-            const wo = document.getElementById('w-out');
-            const wo2 = document.getElementById('w-out-2');
-
-            if(wa) wa.style.backgroundColor = state.inputA ? '#ef4444' : '#eab308';
-            if(wb) wb.style.backgroundColor = state.inputB ? '#ef4444' : '#eab308';
-            if(wo) wo.style.backgroundColor = res ? '#ef4444' : '#3b82f6';
-            if(wo2) wo2.style.backgroundColor = res ? '#ef4444' : '#3b82f6';
-        }
-
-        function renderHoles() {
-            let pwrTop = '';
-            for(let i=0; i<30; i++) {
-                pwrTop += `<div class="hole pwr-plus" style="left:${45+i*20}px; top:0px"></div>`;
-                pwrTop += `<div class="hole pwr-minus" style="left:${45+i*20}px; top:20px"></div>`;
-            }
-            document.getElementById('rail-top').innerHTML = pwrTop;
-            document.getElementById('rail-bottom').innerHTML = pwrTop; // Reuse
-
-            let mainTop = '';
-            [0,12,24,36,48].forEach(y => {
-                for(let i=0; i<30; i++) mainTop += `<div class="hole" style="left:${45+i*20}px; top:${y}px"></div>`;
-            });
-            document.getElementById('holes-top').innerHTML = mainTop;
-            document.getElementById('holes-bottom').innerHTML = mainTop;
-        }
-
-        function renderTruthTable() {
-            const container = document.getElementById('truth-table');
-            const inputs = state.activeCircuit === 'transistor-not' ? [[0,0], [1,0]] : [[0,0], [0,1], [1,0], [1,1]];
-            const logic = circuitLogic[state.activeCircuit].func;
-
-            let html = '';
-            if (state.activeCircuit === 'transistor-not') {
-                html += `<div class="bg-slate-100 font-bold p-1 col-span-2">A</div><div class="bg-slate-100 font-bold p-1 col-span-2">F</div>`;
-            } else {
-                html += `<div class="bg-slate-100 font-bold p-1">A</div><div class="bg-slate-100 font-bold p-1">B</div><div class="bg-slate-100 font-bold p-1 col-span-2">F</div>`;
-            }
-
-            inputs.forEach((inp, i) => {
-                const res = logic(inp[0], inp[1]);
-                const rowId = `tt-${i}`;
-                if (state.activeCircuit === 'transistor-not') {
-                     html += `<div id="${rowId}" class="col-span-4 grid grid-cols-4 p-1 border-t">
-                        <div class="col-span-2">${inp[0]}</div><div class="col-span-2 font-bold">${res}</div></div>`;
+        // Helper to update table row styles
+        function updateTable(tableId, activeIndex) {
+            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+            rows.forEach((row, index) => {
+                if (index === activeIndex) {
+                    row.classList.add('row-active', 'font-bold', 'text-blue-700');
                 } else {
-                    html += `<div id="${rowId}" class="col-span-4 grid grid-cols-4 p-1 border-t">
-                        <div>${inp[0]}</div><div>${inp[1]}</div><div class="col-span-2 font-bold">${res}</div></div>`;
+                    row.classList.remove('row-active', 'font-bold', 'text-blue-700');
                 }
             });
-            container.innerHTML = html;
-            highlightTruthTable();
         }
 
-        function highlightTruthTable() {
-            if (!state.activeCircuit) return;
-            for(let i=0; i<4; i++) {
-                const el = document.getElementById(`tt-${i}`);
-                if(el) el.classList.remove('bg-green-100', 'text-green-800');
-            }
-            let idx = 0;
-            if(state.activeCircuit === 'transistor-not') idx = state.inputA;
-            else idx = (state.inputA * 2) + state.inputB;
-            const row = document.getElementById(`tt-${idx}`);
-            if(row) row.classList.add('bg-green-100', 'text-green-800');
+        // Helper to update button states
+        function updateButtons(prefix, states) {
+            states.forEach((isActive, idx) => {
+                const id = `${prefix}${['00','01','10','11'][idx]}`;
+                const btn = document.getElementById(id);
+                if(btn) {
+                    btn.className = `btn-input ${isActive ? 'btn-on' : 'btn-off'}`;
+                }
+            });
         }
+
+        // --- OR GATE LOGIC ---
+        function updateOR(a, b) {
+            const f = a || b;
+            const high = 'wire-active-high';
+            const low = 'wire-active-low';
+
+            // Update Wires
+            document.getElementById('or-wire-a').setAttribute('class', `wire ${a ? high : low}`);
+            document.getElementById('or-wire-a-out').setAttribute('class', `wire ${a ? high : low}`);
+            document.getElementById('or-wire-b').setAttribute('class', `wire ${b ? high : low}`);
+            document.getElementById('or-wire-b-out').setAttribute('class', `wire ${b ? high : low}`);
+            
+            // Common Path & Output
+            const outClass = f ? high : low;
+            document.getElementById('or-wire-out').setAttribute('class', `wire ${outClass}`);
+            document.getElementById('or-wire-res').setAttribute('class', `wire ${outClass}`); // To resistor
+            
+            // LED
+            document.getElementById('or-led').setAttribute('fill', f ? '#ef4444' : '#cbd5e1');
+            document.getElementById('or-led').setAttribute('stroke', f ? '#991b1b' : '#475569');
+
+            // UI
+            const idx = (a*2) + b; // 00->0, 01->1, 10->2, 11->3
+            updateTable('or-section', idx);
+            
+            // Buttons: Only one active at a time visual logic
+            const btnIds = ['or-btn-00', 'or-btn-01', 'or-btn-10', 'or-btn-11'];
+            btnIds.forEach((id, i) => {
+                const btn = document.getElementById(id);
+                btn.className = `btn-input ${i === idx ? 'btn-on' : 'btn-off'}`;
+            });
+        }
+
+        // --- AND GATE LOGIC ---
+        function updateAND(a, b) {
+            const f = a && b;
+            const high = 'wire-active-high';
+            const low = 'wire-active-low';
+
+            // Logic: If input is 0, wire is Low (Ground path). If input is 1, wire is High (Blocking) visually.
+            document.getElementById('and-wire-a').setAttribute('class', `wire ${a ? high : low}`);
+            document.getElementById('and-wire-b').setAttribute('class', `wire ${b ? high : low}`);
+            
+            // If any input is 0, path from VCC is pulled low through that diode.
+            // If all 1, path stays high.
+            const mainClass = f ? high : low;
+            
+            // Current flows from VCC through resistor. If 0 input exists, it sinks there.
+            document.getElementById('and-wire-main').setAttribute('class', `wire ${mainClass}`);
+            document.getElementById('and-wire-ja').setAttribute('class', `wire ${mainClass}`);
+            document.getElementById('and-wire-jb').setAttribute('class', `wire ${mainClass}`);
+            document.getElementById('and-wire-out').setAttribute('class', `wire ${mainClass}`);
+
+            // LED
+            document.getElementById('and-led').setAttribute('fill', f ? '#ef4444' : '#cbd5e1');
+
+            // UI
+            const idx = (a*2) + b;
+            updateTable('and-section', idx);
+            const btnIds = ['and-btn-00', 'and-btn-01', 'and-btn-10', 'and-btn-11'];
+            btnIds.forEach((id, i) => {
+                const btn = document.getElementById(id);
+                btn.className = `btn-input ${i === idx ? 'btn-on' : 'btn-off'}`;
+            });
+        }
+
+        // --- NOT GATE LOGIC ---
+        function updateNOT(a) {
+            const f = !a;
+            const high = 'wire-active-high';
+            const low = 'wire-active-low';
+
+            // Input Path
+            document.getElementById('not-wire-in').setAttribute('class', `wire ${a ? high : low}`);
+            document.getElementById('not-wire-base-inner').setAttribute('class', `wire ${a ? high : low}`);
+            
+            // Collector Path
+            // If A=1, Transistor ON -> Collector pulled to GND (Low)
+            // If A=0, Transistor OFF -> Collector pulled to VCC (High)
+            const collClass = a ? low : high;
+            document.getElementById('not-wire-coll-top').setAttribute('class', `wire ${collClass}`);
+            document.getElementById('not-wire-out').setAttribute('class', `wire ${collClass}`);
+
+            // LED
+            document.getElementById('not-led').setAttribute('fill', f ? '#ef4444' : '#cbd5e1');
+
+            // UI
+            updateTable('not-section', a ? 1 : 0);
+            document.getElementById('not-btn-0').className = `btn-input ${a === 0 ? 'btn-on' : 'btn-off'}`;
+            document.getElementById('not-btn-1').className = `btn-input ${a === 1 ? 'btn-on' : 'btn-off'}`;
+        }
+
+        // Initialize
+        updateOR(0,0);
+        updateAND(0,0);
+        updateNOT(0);
+
     </script>
 </body>
 </html>
