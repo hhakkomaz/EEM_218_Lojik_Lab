@@ -14,7 +14,7 @@
         }
         
         /* SVG Stilleri */
-        .wire { fill: none; stroke: #94a3b8; stroke-width: 3; stroke-linecap: round; transition: stroke 0.3s; }
+        .wire { fill: none; stroke: #94a3b8; stroke-width: 4; stroke-linecap: round; transition: stroke 0.3s; }
         .wire-active-high { stroke: #ef4444; filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.5)); } /* 5V */
         .wire-active-low { stroke: #3b82f6; } /* GND/Low Path */
         
@@ -61,48 +61,45 @@
             <div class="relative z-10 max-w-2xl">
                 <h2 class="text-2xl font-bold mb-4">Teorik Giriş</h2>
                 <p class="text-slate-300 text-sm leading-relaxed mb-6">
-                    Entegre devrelerin (IC) içerisindeki lojik kapılar sihirli kutular değildir. Temelde <b>diyotların</b> akım yönlendirme yeteneği (DL - Diode Logic) ve <b>transistörlerin</b> anahtarlama yeteneği (RTL - Resistor Transistor Logic) kullanılarak oluşturulurlar. Bu deneyde bu temel yapı taşlarını analiz edeceğiz.
+                    Entegre devrelerin (IC) içerisindeki lojik kapılar sihirli kutular değildir. Bu deneyde föydeki şemalara sadık kalarak <b>diyotların</b> ve <b>transistörlerin</b> lojik kapı olarak nasıl kullanıldığını inceleyeceğiz.
                 </p>
                 <div class="flex gap-4">
                     <div class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold border border-white/20">Diyot: Tek Yönlü Valf</div>
                     <div class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold border border-white/20">Transistör: Elektronik Anahtar</div>
                 </div>
             </div>
-            <!-- Decorative BG Icon -->
             <svg class="absolute right-0 top-0 h-full w-64 text-white/5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12l-4-4v3H3v2h15v3l4-4z"/></svg>
         </section>
 
-        <!-- 1. OR GATE (Diyotlu VEYA) -->
+        <!-- 1. OR GATE (Diyotlu VEYA - Şekil 2.1) -->
         <section id="or-section" class="grid lg:grid-cols-12 gap-8">
-            <!-- Sol Panel: Bilgi ve Tablo -->
             <div class="lg:col-span-5 space-y-6">
                 <div class="circuit-card border-l-4 border-l-blue-500">
                     <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
                         <span class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-xs">1</span>
-                        Diyotlu OR Kapısı
+                        Diyotlu OR Kapısı (Şekil 2.1)
                     </h3>
                     <p class="text-xs text-slate-600 mb-4">
-                        Girişlerden en az biri yüksek (+5V) olduğunda, o hattaki diyot <b>doğru polarmalanır</b> ve iletime geçer. Akım diyot üzerinden çıkış direncine akar.
+                        Bu devrede direnç yoktur. Girişlerden (A veya B) herhangi biri yüksek (+5V) olduğunda, ilgili diyot iletime geçer ve akım doğrudan çıkışa (F) akar.
                     </p>
                     
                     <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-4">
                         <h4 class="text-xs font-bold text-blue-800 mb-1">Beklenen Sonuç</h4>
-                        <p class="text-[10px] text-blue-700">Çıkış voltajı, giriş voltajından diyot eşik gerilimi (Si için ~0.7V) kadar düşük olacaktır.</p>
+                        <p class="text-[10px] text-blue-700">Çıkış voltajı, giriş voltajından diyot eşik gerilimi (Si için ~0.7V) kadar düşük olacaktır. (F = Vin - 0.7V)</p>
                     </div>
 
                     <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Ölçüm Tablosu</h4>
                     <table class="w-full result-table">
-                        <thead><tr><th>A</th><th>B</th><th>Çıkış (Teorik)</th><th>Durum</th></tr></thead>
+                        <thead><tr><th>A</th><th>B</th><th>Çıkış (Teorik)</th></tr></thead>
                         <tbody>
-                            <tr id="or-row-00"><td>0V</td><td>0V</td><td>0V</td><td>Kapalı</td></tr>
-                            <tr id="or-row-01"><td>0V</td><td>5V</td><td>~4.3V</td><td>Açık</td></tr>
-                            <tr id="or-row-10"><td>5V</td><td>0V</td><td>~4.3V</td><td>Açık</td></tr>
-                            <tr id="or-row-11"><td>5V</td><td>5V</td><td>~4.3V</td><td>Açık</td></tr>
+                            <tr id="or-row-00"><td>0V</td><td>0V</td><td>0V</td></tr>
+                            <tr id="or-row-01"><td>0V</td><td>5V</td><td>~4.3V</td></tr>
+                            <tr id="or-row-10"><td>5V</td><td>0V</td><td>~4.3V</td></tr>
+                            <tr id="or-row-11"><td>5V</td><td>5V</td><td>~4.3V</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Kontrol -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
                     <span class="text-xs font-bold text-slate-500">Girişleri Değiştir:</span>
                     <div class="flex gap-2">
@@ -114,9 +111,9 @@
                 </div>
             </div>
 
-            <!-- Sağ Panel: İnteraktif Şema -->
+            <!-- OR Şeması (Dirençsiz) -->
             <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-inner flex flex-col items-center justify-center p-6 relative">
-                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.1: DİYOTLU OR</span>
+                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.1: DİYOTLU OR (ORJİNAL)</span>
                 
                 <svg width="400" height="250" viewBox="0 0 400 250">
                     <!-- Girişler -->
@@ -128,7 +125,7 @@
                     <!-- Diode A -->
                     <g transform="translate(120, 50)">
                         <rect width="30" height="20" class="component-body" />
-                        <line x1="25" y1="0" x2="25" y2="20" stroke="#94a3b8" stroke-width="2" /> <!-- Cathode stripe -->
+                        <line x1="25" y1="0" x2="25" y2="20" stroke="#94a3b8" stroke-width="2" /> <!-- Cathode -->
                         <text x="5" y="14" class="component-text">D1</text>
                     </g>
                     <path id="or-wire-a-out" d="M 150 60 L 220 60 L 220 110" class="wire" />
@@ -147,17 +144,6 @@
                     <circle cx="220" cy="110" r="4" fill="#0f172a" />
                     <path id="or-wire-out" d="M 220 110 L 350 110" class="wire" />
                     
-                    <!-- Resistor to GND -->
-                    <path id="or-wire-res" d="M 220 110 L 220 150" class="wire" />
-                    <g transform="translate(210, 150)">
-                        <rect width="20" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
-                        <line x1="0" y1="10" x2="20" y2="10" stroke="#b91c1c" stroke-width="2" />
-                        <line x1="0" y1="20" x2="20" y2="20" stroke="#b91c1c" stroke-width="2" />
-                        <line x1="0" y1="30" x2="20" y2="30" stroke="#b91c1c" stroke-width="2" />
-                    </g>
-                    <path d="M 220 190 L 220 210" class="wire" stroke="#3b82f6" />
-                    <text x="210" y="225" class="label-text">GND</text>
-
                     <!-- Output Indicator -->
                     <circle id="or-led" cx="350" cy="110" r="8" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
                     <text x="365" y="115" class="label-text">F</text>
@@ -165,30 +151,25 @@
             </div>
         </section>
 
-        <!-- 2. AND GATE (Diyotlu VE) -->
+        <!-- 2. AND GATE (Diyotlu VE - Şekil 2.2) -->
         <section id="and-section" class="grid lg:grid-cols-12 gap-8">
             <div class="lg:col-span-5 space-y-6">
                 <div class="circuit-card border-l-4 border-l-red-500">
                     <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
                         <span class="w-6 h-6 rounded bg-red-100 text-red-600 flex items-center justify-center text-xs">2</span>
-                        Diyotlu AND Kapısı
+                        Diyotlu AND Kapısı (Şekil 2.2)
                     </h3>
                     <p class="text-xs text-slate-600 mb-4">
-                        Diyotlar <b>ters</b> bağlanmıştır. Çıkış bir dirençle VCC (+5V)'ye çekilir (Pull-up). Eğer herhangi bir giriş 0V olursa, akım o diyot üzerinden toprağa akar ve çıkışı 0V'a çeker.
+                        Pull-up (<b>R</b>) direnci ile VCC'ye bağlıdır. Herhangi bir giriş 0V olursa, diyot iletime geçer ve çıkışı 0V'a çeker.
                     </p>
                     
-                    <div class="bg-red-50 p-3 rounded-lg border border-red-100 mb-4">
-                        <h4 class="text-xs font-bold text-red-800 mb-1">Önemli</h4>
-                        <p class="text-[10px] text-red-700">Çıkışın Yüksek (5V) olabilmesi için TÜM diyotların kesimde (girişlerin 5V) olması gerekir.</p>
-                    </div>
-
                     <table class="w-full result-table">
-                        <thead><tr><th>A</th><th>B</th><th>Çıkış (Teorik)</th><th>Durum</th></tr></thead>
+                        <thead><tr><th>A</th><th>B</th><th>Çıkış</th></tr></thead>
                         <tbody>
-                            <tr id="and-row-00"><td>0V</td><td>0V</td><td>~0.7V</td><td>Kapalı</td></tr>
-                            <tr id="and-row-01"><td>0V</td><td>5V</td><td>~0.7V</td><td>Kapalı</td></tr>
-                            <tr id="and-row-10"><td>5V</td><td>0V</td><td>~0.7V</td><td>Kapalı</td></tr>
-                            <tr id="and-row-11"><td>5V</td><td>5V</td><td>5V</td><td>Açık</td></tr>
+                            <tr id="and-row-00"><td>0V</td><td>0V</td><td>~0.7V</td></tr>
+                            <tr id="and-row-01"><td>0V</td><td>5V</td><td>~0.7V</td></tr>
+                            <tr id="and-row-10"><td>5V</td><td>0V</td><td>~0.7V</td></tr>
+                            <tr id="and-row-11"><td>5V</td><td>5V</td><td>5V</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -205,7 +186,7 @@
             </div>
 
             <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-inner flex flex-col items-center justify-center p-6 relative">
-                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.2: DİYOTLU AND</span>
+                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.2: DİYOTLU AND (R'li)</span>
                 
                 <svg width="400" height="250" viewBox="0 0 400 250">
                     <!-- VCC ve Direnç -->
@@ -213,6 +194,7 @@
                     <path d="M 220 25 L 220 50" class="wire wire-active-high" />
                     <g transform="translate(210, 50)">
                         <rect width="20" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
+                        <text x="6" y="25" class="label-text">R</text>
                         <line x1="0" y1="10" x2="20" y2="10" stroke="#b91c1c" stroke-width="2" />
                     </g>
                     <path id="and-wire-main" d="M 220 90 L 220 120" class="wire" />
@@ -248,23 +230,23 @@
             </div>
         </section>
 
-        <!-- 3. NOT GATE (Transistörlü) -->
+        <!-- 3. NOT GATE (Transistörlü - Şekil 2.3) -->
         <section id="not-section" class="grid lg:grid-cols-12 gap-8">
             <div class="lg:col-span-5 space-y-6">
                 <div class="circuit-card border-l-4 border-l-purple-500">
                     <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
                         <span class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs">3</span>
-                        Transistörlü NOT (RTL)
+                        Transistörlü NOT (RTL) (Şekil 2.3)
                     </h3>
                     <p class="text-xs text-slate-600 mb-4">
-                        Transistör bir anahtar gibi çalışır. Giriş (Beyz) akımı olduğunda transistör <b>doyuma</b> (Saturation) girer ve çıkışı (Kollektör) toprağa çeker (0V). Giriş 0V ise transistör <b>kesimdedir</b> (Cut-off) ve çıkış VCC'ye yükselir.
+                        <b>Rb</b> direnci ile beyz akımı, <b>Rc</b> direnci ile kollektör gerilimi kontrol edilir. Giriş 1 ise transistör doyar (Çıkış 0), giriş 0 ise kesimdedir (Çıkış 1).
                     </p>
                     
                     <table class="w-full result-table">
                         <thead><tr><th>Giriş (A)</th><th>Transistör Modu</th><th>Çıkış (F)</th></tr></thead>
                         <tbody>
-                            <tr id="not-row-0"><td>0V</td><td>Kesim (Açık Anahtar)</td><td>5V</td></tr>
-                            <tr id="not-row-1"><td>5V</td><td>Doyum (Kapalı Anahtar)</td><td>~0.2V</td></tr>
+                            <tr id="not-row-0"><td>0V</td><td>Kesim (Açık)</td><td>5V</td></tr>
+                            <tr id="not-row-1"><td>5V</td><td>Doyum (Kapalı)</td><td>~0.2V</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -279,7 +261,7 @@
             </div>
 
             <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-inner flex flex-col items-center justify-center p-6 relative">
-                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.3: RTL NOT</span>
+                <span class="absolute top-4 left-4 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">ŞEKİL 2.3: RTL NOT (Rb, Rc)</span>
                 
                 <svg width="400" height="250" viewBox="0 0 400 250">
                     <!-- VCC & Rc -->
@@ -287,7 +269,7 @@
                     <path d="M 240 25 L 240 50" class="wire wire-active-high" />
                     <g transform="translate(230, 50)">
                         <rect width="20" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
-                        <text x="25" y="25" class="label-text">Rc</text>
+                        <text x="2" y="25" class="label-text">Rc</text>
                     </g>
                     <path id="not-wire-coll-top" d="M 240 90 L 240 120" class="wire" />
                     
@@ -312,7 +294,7 @@
                     <path id="not-wire-base-inner" d="M 220 150 L 190 150" class="wire" />
                     <g transform="translate(150, 130)">
                         <rect width="40" height="20" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="2" />
-                        <text x="10" y="-5" class="label-text">Rb</text>
+                        <text x="2" y="-5" class="label-text">Rb</text>
                     </g>
                     <path id="not-wire-in" d="M 150 150 L 80 150" class="wire" />
                     <text x="65" y="155" class="label-text">A</text>
@@ -339,17 +321,6 @@
             });
         }
 
-        // Helper to update button states
-        function updateButtons(prefix, states) {
-            states.forEach((isActive, idx) => {
-                const id = `${prefix}${['00','01','10','11'][idx]}`;
-                const btn = document.getElementById(id);
-                if(btn) {
-                    btn.className = `btn-input ${isActive ? 'btn-on' : 'btn-off'}`;
-                }
-            });
-        }
-
         // --- OR GATE LOGIC ---
         function updateOR(a, b) {
             const f = a || b;
@@ -362,20 +333,18 @@
             document.getElementById('or-wire-b').setAttribute('class', `wire ${b ? high : low}`);
             document.getElementById('or-wire-b-out').setAttribute('class', `wire ${b ? high : low}`);
             
-            // Common Path & Output
-            const outClass = f ? high : low;
-            document.getElementById('or-wire-out').setAttribute('class', `wire ${outClass}`);
-            document.getElementById('or-wire-res').setAttribute('class', `wire ${outClass}`); // To resistor
+            // Output Wire
+            document.getElementById('or-wire-out').setAttribute('class', `wire ${f ? high : low}`);
             
             // LED
             document.getElementById('or-led').setAttribute('fill', f ? '#ef4444' : '#cbd5e1');
             document.getElementById('or-led').setAttribute('stroke', f ? '#991b1b' : '#475569');
 
             // UI
-            const idx = (a*2) + b; // 00->0, 01->1, 10->2, 11->3
+            const idx = (a*2) + b; 
             updateTable('or-section', idx);
             
-            // Buttons: Only one active at a time visual logic
+            // Buttons
             const btnIds = ['or-btn-00', 'or-btn-01', 'or-btn-10', 'or-btn-11'];
             btnIds.forEach((id, i) => {
                 const btn = document.getElementById(id);
@@ -389,24 +358,18 @@
             const high = 'wire-active-high';
             const low = 'wire-active-low';
 
-            // Logic: If input is 0, wire is Low (Ground path). If input is 1, wire is High (Blocking) visually.
             document.getElementById('and-wire-a').setAttribute('class', `wire ${a ? high : low}`);
             document.getElementById('and-wire-b').setAttribute('class', `wire ${b ? high : low}`);
             
-            // If any input is 0, path from VCC is pulled low through that diode.
-            // If all 1, path stays high.
             const mainClass = f ? high : low;
             
-            // Current flows from VCC through resistor. If 0 input exists, it sinks there.
             document.getElementById('and-wire-main').setAttribute('class', `wire ${mainClass}`);
             document.getElementById('and-wire-ja').setAttribute('class', `wire ${mainClass}`);
             document.getElementById('and-wire-jb').setAttribute('class', `wire ${mainClass}`);
             document.getElementById('and-wire-out').setAttribute('class', `wire ${mainClass}`);
 
-            // LED
             document.getElementById('and-led').setAttribute('fill', f ? '#ef4444' : '#cbd5e1');
 
-            // UI
             const idx = (a*2) + b;
             updateTable('and-section', idx);
             const btnIds = ['and-btn-00', 'and-btn-01', 'and-btn-10', 'and-btn-11'];
@@ -422,21 +385,16 @@
             const high = 'wire-active-high';
             const low = 'wire-active-low';
 
-            // Input Path
             document.getElementById('not-wire-in').setAttribute('class', `wire ${a ? high : low}`);
             document.getElementById('not-wire-base-inner').setAttribute('class', `wire ${a ? high : low}`);
             
-            // Collector Path
-            // If A=1, Transistor ON -> Collector pulled to GND (Low)
-            // If A=0, Transistor OFF -> Collector pulled to VCC (High)
+            // Collector Path logic: Transistor acts as switch to Ground
             const collClass = a ? low : high;
             document.getElementById('not-wire-coll-top').setAttribute('class', `wire ${collClass}`);
             document.getElementById('not-wire-out').setAttribute('class', `wire ${collClass}`);
 
-            // LED
             document.getElementById('not-led').setAttribute('fill', f ? '#ef4444' : '#cbd5e1');
 
-            // UI
             updateTable('not-section', a ? 1 : 0);
             document.getElementById('not-btn-0').className = `btn-input ${a === 0 ? 'btn-on' : 'btn-off'}`;
             document.getElementById('not-btn-1').className = `btn-input ${a === 1 ? 'btn-on' : 'btn-off'}`;
